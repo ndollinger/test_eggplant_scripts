@@ -1,0 +1,60 @@
+{
+  "lastmodifieddate" : 1716232805.3953362,
+  "ocrcapturestring" : "4",
+  "testlocationdata" : [
+    {
+      "connectionserverid" : "127.0.0.1",
+      "sutinfo" : {
+        "webdriver_port" : "53074",
+        "CacheDir" : "\/data\/local\/tmp",
+        "serial" : "1B151FDF600648",
+        "vnc_port" : "53073",
+        "type" : "kvsfa",
+        "sdk" : "34",
+        "remote_ip_addr" : "localhost",
+        "android_version" : "14",
+        "manufacturer" : "Google",
+        "architecture" : "arm64-v8a",
+        "remote_adb_port" : "0",
+        "device_os" : "android",
+        "model" : "Pixel 6"
+      },
+      "connectionname" : "Nick's Android Phone",
+      "connectionportnum" : 53073,
+      "connectiontype" : "Mobile Device",
+      "capturedocrtext" : "4",
+      "properties" : {
+        "Rotate" : 0,
+        "Scale" : "    1",
+        "SearchType" : "Tolerant of Background",
+        "Discrepancy" : "_0",
+        "Tolerance" : "_45",
+        "HotSpot" : "[39,55]",
+        "CropRectangle" : "[0,0,0,0]"
+      },
+      "type" : 1,
+      "name" : "google_weather_icon.png",
+      "capturerect" : [
+        368,
+        1226,
+        89,
+        87
+      ]
+    }
+  ],
+  "createddate" : 1716232805.3953362,
+  "lastfoundlocation" : [
+    368,
+    1226,
+    89,
+    87
+  ],
+  "originalcapturelocation" : [
+    368,
+    1226,
+    89,
+    87
+  ],
+  "lastfounddate" : 1716233022.2066391,
+  "name" : "google_weather_icon"
+}

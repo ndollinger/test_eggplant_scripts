@@ -1,0 +1,60 @@
+{
+  "lastmodifieddate" : 1716232614.042345,
+  "ocrcapturestring" : "Osseo, MN 55311",
+  "testlocationdata" : [
+    {
+      "connectionserverid" : "127.0.0.1",
+      "sutinfo" : {
+        "webdriver_port" : "53074",
+        "CacheDir" : "\/data\/local\/tmp",
+        "serial" : "1B151FDF600648",
+        "vnc_port" : "53073",
+        "type" : "kvsfa",
+        "sdk" : "34",
+        "remote_ip_addr" : "localhost",
+        "android_version" : "14",
+        "manufacturer" : "Google",
+        "architecture" : "arm64-v8a",
+        "remote_adb_port" : "0",
+        "device_os" : "android",
+        "model" : "Pixel 6"
+      },
+      "connectionname" : "Nick's Android Phone",
+      "connectionportnum" : 53073,
+      "connectiontype" : "Mobile Device",
+      "capturedocrtext" : "Osseo, MN 55311",
+      "properties" : {
+        "Rotate" : 0,
+        "Scale" : "    1",
+        "SearchType" : "Smoothed for Text",
+        "Discrepancy" : "_0",
+        "Tolerance" : "_48",
+        "HotSpot" : "[270,58]",
+        "CropRectangle" : "[0,0,0,0]"
+      },
+      "type" : 1,
+      "name" : "weather_location.png",
+      "capturerect" : [
+        164,
+        154,
+        541,
+        116
+      ]
+    }
+  ],
+  "createddate" : 1716232614.0423441,
+  "lastfoundlocation" : [
+    164,
+    154,
+    541,
+    116
+  ],
+  "originalcapturelocation" : [
+    164,
+    154,
+    541,
+    116
+  ],
+  "lastfounddate" : 1716233022.8707252,
+  "name" : "weather_location"
+}

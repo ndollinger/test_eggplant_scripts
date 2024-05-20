@@ -1,0 +1,19 @@
+﻿{
+    EPVersionNumber = 202405091049;
+    Schedules =     (
+    );
+    ScriptMetaData =     {
+        MyFirstScript =         {
+            Description = "What is this?\n";
+            TableScriptUserActionType = "Not a Table Action";
+        };
+    };
+    SuiteEncodedTextKey = "oIQ*x8ygl^kRgc=L";
+    Tags =     (
+        Icon
+    );
+    helpedSuitesInfo =     (
+    );
+    helperSuitesInfo =     (
+    );
+}
