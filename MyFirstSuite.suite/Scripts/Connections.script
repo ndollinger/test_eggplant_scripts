@@ -1,0 +1,19 @@
+﻿// Check for connected SUTs in a naive way
+put AllConnectionInfo()
+if AllConnectionInfo() contains "Connected"
+	put "There is a connected SUT: " && SutInfo()
+else
+	put "No Connected SUTs"
+end if
+
+
+Repeat until ConnectionInfo("Raspberry Pi").Connected
+	put "Attempting to connect to Raspberry Pi for the " & the counter & " time"
+	try
+		Connect("Raspberry Pi")
+	catch connectException
+		Log "Unable to Connect [connectException]"
+	end try
+End repeat
+
+log "Connected to " & ConnectionInfo().name

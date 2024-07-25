@@ -1,8 +1,0 @@
-﻿
-# Connect "Nick's Android Phone"
-# If I don't have a connect command, how do I know where I am running?
-Click "google_weather_icon"
-WaitFor 92.0, "weather_location"
-Log "Weather is opened"
-PressHomeButton
-
