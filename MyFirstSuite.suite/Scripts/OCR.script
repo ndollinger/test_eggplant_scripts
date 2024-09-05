@@ -1,0 +1,23 @@
+﻿
+// Get all the text withing a specific box bounded in the top left by the image `menu_bar_a`
+// and bounded in the bottom right by the image `menu_bar_b`
+put ReadText("Search_Rectangles/menu_bar_A","Search_Rectangles/menu_bar_B")
+
+
+put ["Search_Rectangles/menu_bar_A","Search_Rectangles/menu_bar_B"] into SearchRectangle
+if ImageFound(text:"file")
+	Log "Found the word"
+else
+	Log "Didn't find the word"
+end if
+set the SearchRectangle to empty
+
+ReadText[[￹x1￺TP-EPF-TOKEN￻,￹y1￺TP-EPF-TOKEN￻], [￹x2￺TP-EPF-TOKEN￻,￹y2￺TP-EPF-TOKEN￻]]
+(* huh *)
+put time12 into startTime
+put startTime
+//set the SearchRectangle to ["bookshelf_A","bookshelf_B"]
+put ReadText([386,288])
+DoubleClick text:"bookshelf"
+//set the SearchRectangle to empty
+put startTime minus time12

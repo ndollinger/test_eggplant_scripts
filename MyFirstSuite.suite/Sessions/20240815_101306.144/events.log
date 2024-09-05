@@ -1,0 +1,11 @@
+1	0.005	start	
+2	1.506	mouseDown	{button:1, clickCount:1, hotSpot:[731, 512]}
+3	3.065	mouseUp	{button:1, clickCount:0, hotSpot:[733, 516]}
+4	4.669	mouseDown	{button:1, clickCount:1, hotSpot:[704, 490]}
+5	4.77	mouseUp	{button:1, clickCount:1, hotSpot:[704, 490]}
+6	6.057	mouseDown	{button:1, clickCount:1, hotSpot:[731, 516]}
+7	6.191	mouseUp	{button:1, clickCount:0, hotSpot:[734, 519]}
+8	8.492	keyDown	{modifiers:262144, string:@"\u001a", theKey:"z"}
+9	8.708	keyUp	{modifiers:262144, string:@"\u001a", theKey:"z"}
+10	8.726	flagsChanged	0
+11	15.112	end	

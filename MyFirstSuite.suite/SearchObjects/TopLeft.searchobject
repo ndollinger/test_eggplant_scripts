@@ -1,0 +1,47 @@
+{
+	"originalcapturelocation": [
+		432,
+		169,
+		132,
+		111
+	],
+	"lastmodifieddate": 1723655477.2309999,
+	"createddate": 1723655477.2309999,
+	"name": "TopLeft",
+	"lastfounddate": 1723655707.6859999,
+	"ocrcapturestring": "Class Sche Week 1 C",
+	"lastfoundlocation": [
+		432,
+		169,
+		132,
+		111
+	],
+	"testlocationdata": [
+		{
+				"connectionportnum": 5900,
+				"properties": {
+					"CropRectangle": "[0,0,0,0]",
+					"Rotate": 0,
+					"Scale": "    1",
+					"HotSpot": "[66,55]",
+					"Tolerance": "_73",
+					"Discrepancy": "_0",
+					"SearchType": "Smoothed for Text"
+				},
+				"sutinfo": {
+					"type": "Unknown VNC"
+				},
+				"name": "TopLeft.png",
+				"connectionname": "Nick's Windows PC",
+				"type": 1,
+				"capturerect": [
+					432,
+					169,
+					132,
+					111
+				],
+				"connectionserverid": "192.168.0.123",
+				"capturedocrtext": "Class Sche Week 1 C"
+			}
+	]
+}

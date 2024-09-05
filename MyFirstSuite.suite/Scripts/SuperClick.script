@@ -1,0 +1,1169 @@
+﻿#####################################################################################################################################################################################################
+// SUPERCLICK - Will click on something and more...  -  *PLEASE NOTE* SuperClick is case sensitive and will paste from clipboard if there is more than 10 chars to input. (This is optional though)
+//=====ARGUMENTS====================================================================================================================================================================================
+// When an argument is marked with a "FLAG", this means no additional value is needed to be specified after the argument. Simply specify this argument in order to activate a feature.
+//
+// **** GENERAL ARGUMENTS ***
+// LookingFor		- (MANDATORY) (Usage: "LookingFor:{Image_Path/"string"}) The image or text to find.
+//							NOTE: You can also provide this with a set of Coordinates (e.g. (50,50)|(0,1000)|THE CENTER OF THE SEARCHRECTANGLE)
+//							This completely skips over a lot of the OCR based arguments, and should not be used in any scenario where you click anything other than the coordinates given.
+// DataType				- (OPTIONAL) (Usage: "DataType:{image/text}") (Default = {text/OCR}) This argument specifies if it will be looking for an image or text (using OCR).
+// ClickAmount			- (OPTIONAL) (Usage: "ClickAmount:{1 to 'nnnn'}") (Default = 1) How many times do you want to click the item you are looking for (Use:  RightClick   instead of an integer number to perform a single right click)
+// ScreenArea			- (OPTIONAL) (Usage: "ScreenArea:{see _COREFW02_EGGPLANT for screen areas}") (Default = "Default") What portion of the screen to look for.
+//							Can use this argument for a SuperDynamicSearchArea call in the following way ("ScreenArea:#LookingFor:New Item|LogLVL:INFO|LogMSG:Setting area around New Item Window").
+//							You MUST include '#' after the argument name or it WON'T call SuperDynamicSearchArea and it will mistake it for a screen part name.
+// LogLVL				- (OPTIONAL) (Usage: "LogLVL:{see _COREFW00_MAIN.LogItForMe function to see available log levels}") Log Level to use if sending a log message through with this command.
+// LogMSG				- (OPTIONAL) (Usage: "LogMSG:"String") Message to send with this command. To use this argument, LogLVL must also be defined.
+// xOffset				- (OPTIONAL) (Usage: "xOffset:{n}") (Default = 0) The X Axis (Left/Right) offset to click if not where the (LookingFor) is found.
+// yOffset				- (OPTIONAL) (Usage: "yOffset:{n}") (Default = 0) The Y Axis (Up/Down) offset to click if not where the (LookingFor) is found.
+// ForceTextStyle		- (OPTIONAL) (Usage: "ForceTextStyle:{see OCR Tuner for text style profiles available}") (Default = "Default") Used to specifiy specific text styles / BG styles for help with finding (LookingFor).
+// MaxWait				- (OPTIONAL) (Usage: "MaxWait:{1 to 'n' seconds}") (Default = 5 seconds) How long to wait before failing the execution of this command.
+// Case					- (OPTIONAL) (Usage: "Case:{Yes/No}") (Default = YES) Denotes if case sensitivity will be used - CAUTION! - Not specifying this argument means you need to be precise with the text you are specifying.
+//
+// **** ADDITIONAL SPECIAL ARGUMENTS ****  -  These settings allow you to add additional functionality to SuperClick
+// StrictFind				- (OPTIONAL) (Usage: "StrictFind:Check{Left|Right|Both}|{nnn}") Will use SC_StrictFind to ensure that item clicked doesn't belong to a string on-screen
+// CharSet				- (OPTIONAL) (Usage: "CharSet:{CharSet to use}") (Default = *) Will use a specified character set to narrow down the characters you are looking for and try to eliminate FALSE OCR matches.  
+//							You can select from a pre-determined set of characters sets in _COREFW02_EGGPLANT.SuperClick_CharSetTemplates or leave empty to choose default "AlphaNumeric" character set.
+// SSC					- [FLAG] (OPTIONAL) (Usage: "SSC:{TRUE/FALSE}") (Default = FALSE) "Suppress Screen Capture" will notify the verification stage of superclick to not take a screenshot in the event of a successful validation
+//							By specifying this argument, you significantly cut down on the amount of screenshots taken by removing screen captures that are not really needed in the event of a successful validation.
+//							This will only suppress successful validations (PASS), all other types will still be captured.
+// TabToEditField		- (OPTIONAL) (Usage: "TabToEditField:{TTEF_Arguments}") This SuperClick argument will use "TabKey" to cycle through controls on a UI so that a you can highlight a control which is awkward to manipulate.
+//							The TTEF_Arguments need to be in the format of : "TabToEditField:LEFT,TOP,RIGHT,BOTTOM:ImagePath:[img1,img2,img3]".
+//							LEFT,TOP,RIGHT,BOTTOM = The values used for dynamically modifying the search area. (Uses SuperModifySearchArea function.)
+// 							ImagePath:{img1,img2,img3} = The image(s) you are looking for to confirm you are on the correct field/text
+// WaitBeforeExecute		- (OPTIONAL) (Usage: "WaitBeforeExecute:{n-nnnn}") (Default = 0 seconds) Wait Before Execute allows you to pause Superclick momentarily before execution begins. 
+//							This is useful for those critical timings where you cannot run SuperClick commands back to back as quickly as normal.
+// WaitAfterExecute		- (OPTIONAL) (Usage: "WaitAfterExecute:{n-nnnn}") (Default = 0 seconds) Wait After Execute allows you to pause Superclick momentarily after execution. 
+//							This is useful for those critical timings where you cannot run SuperClick commands back to back as quickly as normal.
+//
+// **** ALTERNATIVE SUPERCLICK SETTINGS ****  -  These settings make SuperClick work in a different way to usual. (Please read documentation carefully)
+// ClickFirst				- [FLAG] (OPTIONAL) (Usage: "ClickFirst:{TRUE/FALSE}") (Default = FALSE) Do you only want to click the first occurrence of a found item (LookingFor) - CANNOT be used with MULTICLICK or ONLYMATCHITEM
+// ClickLast				- [FLAG] (OPTIONAL) (Usage: "ClickLast:{TRUE/FALSE}") (Default = FALSE) Do you only want to click the last occurrence of a found item (LookingFor) - CANNOT be used with MULTICLICK or ONLYMATCHITEM
+// MultiClick				- (OPTIONAL) (Usage: "MultiClick:{String}|{String}|{etc...}") (STRING LIST with | Separator) This replaces (LookingFor).
+//							If you are wanting to click multiple items (One after another), then provide a pipe '|' separated list of items to click.
+//							MultiClick CANNOT be used in conjunction with OnlyMatchItem and VerifyText.  
+//							*PLEASE NOTE* If you have specified something for OnlyMatchItem - this will be ignored in favor of MultiClick.
+// MultiTextSelect		- (OPTIONAL) (Usage: "MultiTextSelect:{String}|{String}|{etc...}") Control Clicks to select multiple text items using OCR.
+//							*PLEASE NOTE* CAN ONLY BE USED WITH: LogLVL,LogMSG, Silent, WBE, ScreenArea, ForceTextStyle, MaxWait, Case, xOffset, yOffset
+//							*PLEASE NOTE* Standard fallback mechanisms do not apply. The argument has it's own inbuilt fallback mechanism.
+// OnlyMatchItem		- (OPTIONAL) (Usage: "OnlyMatchItem:{nn}") (Default = OFF/Only find first match) If more than 1 item is likely to be matched on the screen you are searching, which match do you want to use.
+// SetClickDelay			- (OPTIONAL) (Usage: "SetClickDelay:{n}") (Default = 0 seconds) Click Amount Delay allows you to pause Superclick between clicks if the amount is greater than 1.
+//							*PLEASE NOTE* CAN ONLY BE USED WHEN: ClickAmount is set greater than 1.
+//
+// **** TEXT INPUT SETTINGS ****  -  Specific settings for text input and manipulation
+// InputText				- (OPTIONAL) (Usage: "InputText:{String}|{String}|{etc...}") If you wish to enter text after clicking somewhere, use this argument. You can combine your string with special key commands such as (controlKey, windowsKey) etc..
+//							The symbol used to denote special keys or additional text input is the PIPE symbol   "|" 
+//							When specifying special key combos, you must remember to end the combo with the opposite command. (e.g.   [SpecialKey]Down|"TEXT"|[SpecialKey]Up'. By not correctly resetting the combo will result in your execution failing, 
+//							(Additional Example  :- Say you want to use windows key and R to open run prompt, then type text 'TEST' ---->     |windowsKeyDown|R|windowsKeyUP|TEST)
+// MultiClickTextInput           - (OPTIONAL) (Usage: "MultiClickTextInput:1|3|4|") (Default = 1) Used to specify after which clicks in the multiclick text will be inputted, default is only after the first click.
+// WaitBeforeIT			- (OPTIONAL) (Usage: "WaitBeforeIT:{n}") (Default = 0 seconds) Normally, each input text command will be executed with no delay between each argument (InputText:{Arg1}|{Arg2}|{Arg3}...)
+// 							If this argument is specified with a numeric value, that numeric value will be converted into a wait time between each argument execution. (This also include the initial argument)
+// WaitBeforeTyping		- (OPTIONAL) (Usage: "WaitBeforeTyping:{n-nnnn}") (Default = 0 seconds) Wait Before Typing allows you to pause Superclick momentarily before typing begins. 
+//							This is useful for those critical timings where you cannot run SuperClick commands back to back as quickly as normal.
+//
+// **** VALIDATION/VERIFICATION SETTINGS ****
+// VerifyText				- [FLAG] (OPTIONAL) (Usage: "VerifyText:{TRUE/FALSE}") (Default = FALSE) Do you want to verify the text you have just entered. To use this argument, InputText must also be defined.
+// VerifyTextUsingClipboard - [FLAG] (OPTIONAL) (Usage: "VerifyTextUsingClipboard") (Default = FALSE) Will use clipboard functionality to confirm the input text has been entered correctly
+// VerifyExternalText		- (OPTIONAL) (Usage: "VerifyExternalText:{Text_To_Verify}") (Default = DISABLED) If there is any text you wish to verify after SuperClick has finished every other argument, please use this argument.
+//							This argument is independent of 'InputText' and will only verify text which you have specified with this command after all other arguments have been processed. Think of this argument as a 'SuperWaitFor' extension to SuperClick.
+//							PLEASE NOTE: This argument will use the last set search area to verify your external text, The 'MaxWait' set with your SuperClick function call and a 'Default' text style.
+//
+// **** FLAGS **** -  Arguments used to enable/disable something in SuperClick. (No additional values are needed with FLAGS)
+// DownToMouse		- [FLAG] (OPTIONAL) (Usage: "DownToMouse") Will call the function _COREFW00_MAIN.SuperModifySearchArea with ("Preset:DownToMouse") - and reduce search area each time a new field is selected. Only works with forms that work top to bottom
+// FullClearField			- [FLAG] (OPTIONAL) (Usage: "FullClearField") Will clear the text field which has been 'Clicked' on by SuperClick.
+// ForceTypeChars		- [FLAG] (OPTIONAL) (Usage: "ForceTypeChars") When using 'InputText' argument, this extended function will default to copying your text to the clipboard and pasting it into a text field rather than typing it character by character. 
+//							if the string to insert is longer than 10 characters (If 10 or less chars, the text will be typed by default). (Usage: "ForceTypeChars")
+// ForceValid			- [FLAG] (OPTIONAL) (Usage: "ForceValid") When verifying text after SuperClick (Using [VerifyText]), the minimum amount of characters needed for a verification to occur is 3 or more chars. 
+//							Where you have 2 chars that you MUST verify, you can use this flag, which will be sent  onto SuperVerification when verifying text you have just entered.
+// OnlyMoveToLocation	- [FLAG] (OPTIONAL) (Usage: "OnlyMoveToLocation") Will only locate the image/text you are looking for and move the mouse to it's location on the screen. 
+//							ONLY COMPATIBLE WITH THE FOLLOWING ARGUMENTS: DataType / LookingFor / ScreenArea / LogLVL / LogMSG / ForceTextStyle / MaxWait / Case / DownToMouse / MaxFBPDRetries / NoAltMethod / NoAltTextFB / NoScrollFB / TruncFB / UseAltScrollFB
+// Secret				- [FLAG] (OPTIONAL) (Usage: "Secret") If you are using SuperClick to input some sensitive text into a text field/box, use this argument to hide the text which displays when showing steps in the log window (Used for login details etc..)
+// Silent					- [FLAG] (OPTIONAL) (Usage: "Silent") Will run SuperClick in semi silent mode - Some messages will be suppressed.
+// StripSearch			- [FLAG] (OPTIONAL) (Usage: "StripSearch") When VerifyText = TRUE and this argument is also seen, SuperClick will hand off this argument to SuperVerification.
+//							SuperVerification will use the last mouse position (Including offsets) to set a dynamic search area which will span the current dynamic area, but will only be as tall as a text box
+//							Using StripSearch during text box entry reduces the amount of duplicated text is sees by only allowing text in 1 line to be read.
+//							This argument should not be used when you are using a mouse return position (A screen anchor) to click away from a text box which may present you with options.
+//							this is because the dynamic search area relies on the mouse being in the correct position after entering the text in the text box.
+//							When a specified search are is also sent through at the same time as this argument, the search area will have precedence.
+// TBC					- [FLAG] (OPTIONAL) (Usage: "TBC") "TO BE CONFIRMED" ... Sometimes, Eggplant misses a click location which causes execution to fail when using 'InputText' option. Now as a failsafe, you can use TBC to confirm it has clicked into a text box and  
+//							correctly entered the text. This option will only work when 'InputText' argument is not empty and will work alongside of 'VerifyText' (Although you should use one or the other where possible).
+//							The major difference between 'VerifyText' and 'TBC' is that TBC does not confirm or validate the text entered into text box (e.g. Provide validation results and failure mechanism) but instead looks for the text in 
+//							the same way 'VerifyText' does, but when the text is not seen. retries the whole 'SuperClick' command again until it sees that the text has been entered correctly (up to a maximum of 5 attempts.)
+//							If after 5 attempts the text cannot be seen, an ERROR will be produced and the script will be terminated as it presumes the data which was needed has not been entered correctly.
+//							When using multiple input text arguments, it will only use the first item in the input text list arguments. This means if you have specified "InputText:TextItem1|TextItem2|TextItem3|TextItem4" - Only TextItem1 will be used.
+// NoCache				- [FLAG] (OPTIONAL) (Usage: "NoCache") Will force caching to be ignored for the current SuperClick command if currently turned on.
+//
+// **** FALLBACK SETTINGS and/or FLAGS ****  -  All settings related to fallback mechanisms
+// FBOrder				- (OPTIONAL) (Usage: "FBOrder:1|2|3|4|5|6") (Default = 1|2|3|4|5|6) The order in which FallBackMechanisms_TEXT will execute fall back methods. These are currently
+//								1 - Try alternate text style to find the text				2 - Scroll down then up the page to find the text
+//								3 - Try a larger OCR list of text styles to find the text			4 - Truncate the 'LookingFor' text in order to find the text
+//								5 - Reset the search rectangle to previous dynamic area then run method 1 and 2	6 - Set the search rectangle as the whole screen then run method 1 and 2
+//								7 - Scroll down then up the page whilst trying alternate text styles to find the text	8 - Scroll down then up the page whilst trying a larger OCR list of alternate text styles to find the text
+//								NOTE:Flags set will effect the execution of methods. E.g. If DoNotFallBackWithScroll is set, then method 5 will only run method 1 after resetting the search rectangle.
+//
+// MaxFBPDRetries		- (OPTIONAL) (Usage: "MaxFBPDRetries:{nnnn}") (Default = 5) Max Fall Back Page Down Retry Attempts. By default it will page down/up 5 times, but you can override this value with this setting.
+// MaxTruncRetries		- (OPTIONAL) (Usage: "MaxTruncRetries:{nnnn}") (Default = 5)  This will override the default 5 attempts for truncation fallback with the number you specify.
+// TFBCL				- (OPTIONAL) (Usage: "TFBCL:{nnnn}") (Default = 3) Truncation Fallback Character Limit allows you to specify the minimum amount of characters you want to allow if TruncFB is used.
+// TruncFB				- [FLAG] (OPTIONAL) (Usage: "TruncFB") If the SuperClick moves into a fall-back mode, Superclick WILL try to truncate text to find the object (Text only).
+// NoAltTextFB			- [FLAG] (OPTIONAL) (Usage: "NoAltTextFB") If the SuperClick moves into a fall-back mode, Superclick will NOT try alternative text styles as you are confident this will not be the problem.	
+// DoNotResetArea		- [FLAG] (OPTIONAL) (Usage: "DoNotResetArea") When superclick goes into fallback, one of the fallback mechanisms is to reset dynamic search area in case text/image out of scope. This argument will not allow this to happen.			
+// UseAltScrollFB			- [FLAG] (OPTIONAL) (Usage: "UseAltScrollFB") Sometimes it's possible to have a screen which has fields that once clicked do not allow for PgDown fallback to work (Drop Down boxes). 
+// ScrollAmount			- (OPTIONAL) (Usage: "ScrollAmount:int") (Default = 6) ) (Only compatabe with UseAltScrollFB) Some lists require a lot more clicking to move up or down the list
+//							This will use the scrollbar down arrow instead (where possible) to move down the page.
+// NoScrollFB			- [FLAG] (OPTIONAL) (Usage: "NoScrollFB") If the SuperClick moves into a fall-back mode, Superclick will NOT try scrolling as you are confident this will not be the problem.
+//							This argument should be used when you know that if a detection failure occurs (Cannot find some text), scrolling to find the field will not help and you just want to skip this part of the fallback mechanism.
+// NoAltMethod			- [FLAG] (OPTIONAL) (Usage: "NoAltMethod") Will force SuperClick to not use any alternative searching methods if it initially fails and moves into fall-back.
+//							This argument should be used when you know that if a detection failure occurs (Cannot find some text), trying alternative text styles to find the field will not help and you just want to skip this part of the fallback mechanism
+//
+//====================================================================================================================================================================================================
+// VERSION: 71     /      Created By: Kevin Whitlam     /      Modifier: Kevin Whitlam
+// Dependencies:
+// DEP*"00_Settings_&_Errors/_98_COMMON_ERRORS".SuperClickFailed
+// DEP*_COREFW00_MAIN.FunctionHeaderOutput
+// DEP*_COREFW00_MAIN.LogItForMe
+// DEP*_COREFW00_MAIN.SC_CheckForTextInput
+// DEP*_COREFW00_MAIN.SC_ExtFuncRepeatClick
+// DEP*_COREFW00_MAIN.SC_FullClearField
+// DEP*_COREFW00_MAIN.SC_TabToEditField
+// DEP*_COREFW00_MAIN.SC_TBCCheck
+// DEP*_COREFW00_MAIN.SetArgumentsAndCallFallbackMechanisms_TEXT
+// DEP*_COREFW00_MAIN.SuperClick
+// DEP*_COREFW00_MAIN.SuperModifySearchArea
+// DEP*_COREFW00_MAIN.SUPERVERIFICATION
+// DEP*_COREFW00_MAIN.SuperWaitForItem
+// DEP*_COREFW02_EGGPLANT.ScreenPart
+// DEP*_COREFW02_EGGPLANT.SuperClickCharSetTemplates
+// DEP*State.EATHandlerEnd
+// DEP*State.ExecutionAnalysisTracker
+//
+TO HANDLE SuperClick Arguments
+	SET HandlerName TO State.ExecutionAnalysisTracker
+	IF Arguments does not contain "Silent" AND IF Arguments does not contain "silent" AND IF Arguments does not contain "SILENT" THEN
+		//--- FUNCTION NAME AND VERSION ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		_COREFW00_MAIN.FunctionHeaderOutput ("FunctionName:"&HandlerName,"FunctionVersion:71","OutputLVL:2","Silent")
+		_COREFW00_MAIN.LogItForMe "DEBUG","### ARGUMENTS ###  -  "&Arguments
+		//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	END IF
+	
+	---=============================---_________________________________________________________________________________________________
+	---:::::::::: READ IN ARGUMENTS ::::::::::---_________________________________________________________________________________________________
+	---=============================---_________________________________________________________________________________________________
+	//
+	// ########################################################################################
+	// ####     THE FOLLOWING SHOULD BE IN THE SAME ORDER AS THE ABOVE ARGUMENT DESCRIPTIONS
+	// ########################################################################################
+	REPEAT FOR EACH ITEM IN Arguments
+		IF IT STARTS WITH "LookingFor:" THEN SET LookingFor TO CHARACTERS (LENGTH("LookingFor:") +1) TO LENGTH(IT) OF IT
+		IF IT STARTS WITH "DataType:" THEN SET DataType TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "ClickAmount:" THEN SET ClickAmount TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "ScreenArea:#" THEN SET ExtractedSuperDynamicArguments TO ITEM 2 OF (IT SPLIT BY "#")
+		IF IT STARTS WITH "ScreenArea:" THEN SET ScreenArea TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "LogLVL:" THEN SET LogLVL TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "LogMSG:" THEN SET LogMSG TO CHARACTERS (LENGTH("LogMSG:") +1) TO LENGTH(IT) OF IT
+		IF IT STARTS WITH "xOffset:" THEN SET xOffset TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "yOffset:" THEN SET yOffset TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "ForceTextStyle:" THEN SET ForceTextStyle TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "MaxWait:" THEN SET MaxWait TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "Case:" THEN SET Case TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "StrictFind:" THEN SET StrictFind TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "CharSet:" THEN SET CharSetTemplateToUse TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "SSC" THEN SET SurpressScreenCaptureOnSuccessfulValidation TO TRUE
+		IF IT STARTS WITH "TabToEditField:" THEN SET TabToEditField TO CHARACTERS (LENGTH("TabToEditField:") +1) TO LENGTH(IT) OF IT
+		IF IT STARTS WITH "WaitBeforeExecute:" THEN SET WaitBeforeExecute TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "WaitAfterExecute:" THEN SET WaitAfterExecute TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "ClickFirst" THEN SET ClickFirst TO TRUE
+		IF IT STARTS WITH "ClickLast" THEN SET ClickLast TO TRUE
+		IF IT STARTS WITH "MultiClick:" THEN SET MultiClick TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "MultiTextSelect:" THEN SET MultiTextSelect TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "OnlyMatchItem:" THEN SET OnlyMatchItem TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "SetClickDelay:" THEN SET SetClickDelay TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "InputText:" THEN SET InputText TO CHARACTERS (LENGTH("InputText:") +1) TO LENGTH(IT) OF IT
+		IF IT STARTS WITH "MultiClickTextInput:" THEN SET MultiClickTextInput TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "WaitBeforeIT:" THEN SET WaitBeforeIT TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "WaitBeforeTyping:" THEN SET WaitBeforeTyping TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "VerifyText:" THEN SET VerifyText TO TRUE
+		IF IT STARTS WITH "VerifyTextUsingClipboard" THEN SET VerifyTextUsingClipboard TO TRUE
+		IF IT STARTS WITH "VerifyExternalText:" THEN SET VerifyExternalText TO CHARACTERS (LENGTH("VerifyExternalText:") +1) TO LENGTH(IT) OF IT
+		IF IT STARTS WITH "DownToMouse" THEN SET ShouldDownToMouse TO TRUE
+		IF IT STARTS WITH "FullClearField" THEN SET FullClearField TO TRUE
+		IF IT STARTS WITH "ForceTypeChars" THEN SET ForceTypeChars TO TRUE
+		IF IT STARTS WITH "ForceValid" THEN SET ForceSuperVerificationVaidation TO TRUE
+		IF IT STARTS WITH "OnlyMoveToLocation" THEN SET OnlyMoveToLocation TO TRUE
+		IF IT STARTS WITH "Secret" THEN SET UseSecret TO TRUE
+		IF IT STARTS WITH "Silent" THEN SET ShouldBeSilent TO TRUE
+		IF IT STARTS WITH "StripSearch" THEN SET UseStripSearch TO TRUE
+		IF IT STARTS WITH "TBC" THEN SET UseTBC TO TRUE
+		IF IT STARTS WITH "NoCache" THEN SET NoCache TO TRUE
+		IF IT STARTS WITH "FBOrder:" THEN SET FBOrder TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "MaxFBPDRetries:" THEN SET MaxFBPDRetries TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "MaxTruncRetries:" THEN SET MaxTruncRetries TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "TFBCL:" THEN SET TFBCL TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "TruncFB" THEN SET UseTruncFB TO TRUE
+		IF IT STARTS WITH "NoAltTextFB" THEN SET DoNotFallBackWithTextStyles TO TRUE
+		IF IT STARTS WITH "DoNotResetArea" THEN SET DoNotResetArea TO TRUE
+		IF IT STARTS WITH "UseAltScrollFB" THEN SET UseAltScrollFB TO TRUE
+		IF IT STARTS WITH "ScrollAmount:" THEN SET ScrollAmount TO ITEM 2 OF (IT SPLIT BY ":")
+		IF IT STARTS WITH "NoScrollFB" THEN SET DoNotFallBackWithScroll TO TRUE
+		IF IT STARTS WITH "NoAltMethod" THEN SET ShouldNotUseAnyAltMethod TO TRUE
+	END REPEAT
+	
+	// ########################################################################################
+	// ####     Additional evaluations of set arguments
+	// ########################################################################################
+	
+	// STRICT FIND ADDITIONAL EVALUATION
+	IF StrictFind IS NOT EMPTY AND IF StrictFind DOES NOT EQUAL "StrictFind" THEN 
+		SET StrictFindDirectionToCheck TO THE FIRST ITEM OF (StrictFind SPLIT BY "|")
+		SET StrictFindAllowedDistanceBetweenWords TO THE SECOND ITEM OF (StrictFind SPLIT BY "|")
+		SET StrictFind TO TRUE
+	END IF
+	
+	// SCREEN AREA ADDITIONAL EVALUATION
+	IF ExtractedSuperDynamicArguments IS NOT EMPTY AND IF ExtractedSuperDynamicArguments <> "" AND IF ExtractedSuperDynamicArguments <> "ExtractedSuperDynamicArguments" THEN
+		SET ScreenArea TO ""
+		SET ExtractedSuperDynamicArguments TO ExtractedSuperDynamicArguments SPLIT BY "|"
+	END IF
+	
+	---=============================---_________________________________________________________________________________________________
+	---::::::::: SET DEFAULT VALUES :::::::::---_________________________________________________________________________________________________
+	---=============================---_________________________________________________________________________________________________
+	//
+	// ########################################################################################
+	// ####     THE FOLLOWING SHOULD BE IN THE SAME ORDER AS THE ABOVE ARGUMENT DESCRIPTIONS
+	// ########################################################################################
+	IF LookingFor IS EMPTY OR IF LookingFor = "" OR IF LookingFor = "LookingFor" THEN SET LookingFor TO ""
+	IF DataType IS EMPTY OR IF DataType = "" OR IF DataType = "DataType" OR IF DataType = TRUE THEN SET DataType TO "text"	
+	IF ClickAmount IS EMPTY OR IF ClickAmount = "" OR IF ClickAmount = "ClickAmount" THEN SET ClickAmount TO 1
+	IF ScreenArea IS EMPTY OR IF ScreenArea = "" OR IF ScreenArea = "ScreenArea" OR IF ScreenArea = TRUE THEN SET ScreenArea TO ""
+	IF ExtractedSuperDynamicArguments IS EMPTY OR IF ExtractedSuperDynamicArguments = "" OR IF ExtractedSuperDynamicArguments = "ExtractedSuperDynamicArguments" THEN SET ExtractedSuperDynamicArguments TO ""
+	IF LogLVL IS EMPTY OR IF LogLVL = "" OR IF LogLVL = "LogLVL" OR IF LogLVL = TRUE THEN SET LogLVL TO ""
+	IF xOffset IS EMPTY OR IF xOffset = "" OR IF xOffset = "xOffset" OR IF xOffset IS NOT A NUMBER THEN SET xOffset TO 0
+	IF yOffset IS EMPTY OR IF yOffset = "" OR IF yOffset = "yOffset" OR IF yOffset IS NOT A NUMBER THEN SET yOffset TO 0
+	IF ForceTextStyle IS EMPTY OR IF ForceTextStyle = "" OR IF ForceTextStyle = "ForceTextStyle" OR IF ForceTextStyle = TRUE THEN SET ForceTextStyle TO "Default"
+	IF MaxWait IS EMPTY OR IF MaxWait = "" OR IF MaxWait = "MaxWait" OR IF MaxWait IS NOT A NUMBER THEN SET MaxWait TO 5
+	IF Case IS EMPTY OR IF Case = "" OR IF Case = "Case" OR IF Case = TRUE THEN SET Case TO "YES"
+	IF StrictFind = "" OR StrictFind IS EMPTY OR StrictFind ="StrictFind" THEN SET StrictFind TO FALSE
+	IF CharSetTemplateToUse IS EMPTY OR IF CharSetTemplateToUse = "" OR IF CharSetTemplateToUse = "CharSetTemplateToUse" OR IF CharSetTemplateToUse = TRUE THEN SET CharSetTemplateToUse TO ""
+	IF SurpressScreenCaptureOnSuccessfulValidation IS EMPTY \
+			OR IF SurpressScreenCaptureOnSuccessfulValidation = "" \
+			OR IF SurpressScreenCaptureOnSuccessfulValidation = "SurpressScreenCaptureOnSuccessfulValidation" \
+			THEN SET SurpressScreenCaptureOnSuccessfulValidation TO FALSE
+	IF TabToEditField IS EMPTY OR IF TabToEditField = "" OR IF TabToEditField = "TabToEditField" THEN SET TabToEditField TO FALSE
+	IF WaitBeforeExecute IS EMPTY OR IF WaitBeforeExecute = "" OR IF WaitBeforeExecute = "WaitBeforeExecute" OR IF WaitBeforeExecute IS NOT A NUMBER THEN SET WaitBeforeExecute TO 0
+	IF WaitAfterExecute IS EMPTY OR IF WaitAfterExecute = "" OR IF WaitAfterExecute = "WaitAfterExecute" OR IF WaitAfterExecute IS NOT A NUMBER THEN SET WaitAfterExecute TO 0
+	IF ClickFirst IS EMPTY OR IF ClickFirst = "" OR IF ClickFirst = "ClickFirst" THEN SET ClickFirst TO FALSE
+	IF ClickLast IS EMPTY OR IF ClickLast = "" OR IF ClickLast = "ClickLast" THEN SET ClickLast TO FALSE
+	IF MultiClick IS EMPTY OR IF MultiClick = "" OR IF MultiClick = "MultiClick" THEN SET MultiClick TO ""
+	IF MultiTextSelect IS EMPTY OR IF MultiTextSelect = "" OR IF MultiTextSelect = "MultiTextSelect" OR IF MultiTextSelect = TRUE THEN SET MultiTextSelect TO ""
+	IF OnlyMatchItem IS EMPTY OR IF OnlyMatchItem = "" OR IF OnlyMatchItem = "OnlyMatchItem" OR IF OnlyMatchItem IS NOT A NUMBER THEN SET OnlyMatchItem TO 0
+	IF SetClickDelay IS EMPTY OR IF SetClickDelay = "" OR IF SetClickDelay = "SetClickDelay" OR IF SetClickDelay IS NOT A NUMBER THEN SET SetClickDelay TO 0
+	IF InputText IS EMPTY OR IF InputText = "" OR IF InputText = "InputText" OR IF InputText = TRUE THEN SET InputText TO ""
+	IF MultiClickTextInput = "" OR MultiClickTextInput IS EMPTY OR MultiClickTextInput ="MultiClickTextInput" THEN SET MultiClickTextInput TO 1
+	IF WaitBeforeIT IS EMPTY OR IF WaitBeforeIT = "" OR IF WaitBeforeIT = "WaitBeforeIT"  OR IF WaitBeforeIT IS NOT A NUMBER THEN SET WaitBeforeIT TO 0
+	IF WaitBeforeTyping IS EMPTY OR IF WaitBeforeTyping = "" OR IF WaitBeforeTyping = "WaitBeforeTyping" OR IF WaitBeforeTyping IS NOT A NUMBER THEN SET WaitBeforeTyping TO 0
+	IF VerifyText IS EMPTY OR IF VerifyText = "" OR IF VerifyText = "VerifyText" THEN SET VerifyText TO FALSE
+	IF VerifyTextUsingClipboard = "" OR VerifyTextUsingClipboard IS EMPTY OR VerifyTextUsingClipboard = "VerifyTextUsingClipboard" THEN SET VerifyTextUsingClipboard TO FALSE
+	IF VerifyExternalText IS EMPTY OR IF VerifyExternalText = "" OR IF VerifyExternalText = "VerifyExternalText" OR IF VerifyExternalText = TRUE THEN SET VerifyExternalText TO EMPTY
+	IF ShouldDownToMouse IS EMPTY OR IF ShouldDownToMouse = "" OR IF ShouldDownToMouse = "ShouldDownToMouse" THEN SET ShouldDownToMouse TO FALSE
+	IF FullClearField IS EMPTY OR IF FullClearField = "" OR IF FullClearField = "FullClearField" THEN SET FullClearField TO FALSE
+	IF ForceTypeChars IS EMPTY OR IF ForceTypeChars = "" OR IF ForceTypeChars = "ForceTypeChars" THEN SET ForceTypeChars TO FALSE
+	IF ForceSuperVerificationVaidation IS EMPTY OR IF ForceSuperVerificationVaidation = "" OR IF ForceSuperVerificationVaidation = "ForceSuperVerificationVaidation" THEN SET ForceSuperVerificationVaidation TO FALSE
+	IF OnlyMoveToLocation IS EMPTY OR IF OnlyMoveToLocation = "" OR IF OnlyMoveToLocation = "OnlyMoveToLocation" THEN SET OnlyMoveToLocation TO FALSE
+	IF UseSecret IS EMPTY OR IF UseSecret = "" OR IF UseSecret = "UseSecret" THEN SET UseSecret TO FALSE
+	IF ShouldBeSilent IS EMPTY OR IF ShouldBeSilent = "" OR IF ShouldBeSilent = "ShouldBeSilent" THEN SET ShouldBeSilent TO FALSE
+	IF UseStripSearch IS EMPTY OR IF UseStripSearch = "" OR IF UseStripSearch = "UseStripSearch" OR IF UseStripSearch NOT EQUAL TO TRUE THEN SET UseStripSearch TO FALSE
+	IF UseTBC IS EMPTY OR IF UseTBC = "" OR IF UseTBC = "UseTBC" THEN SET UseTBC TO FALSE
+	IF NoCache IS EMPTY OR IF NoCache = "" OR IF NoCache = "NoCache" THEN SET NoCache TO FALSE
+	IF FBOrder IS EMPTY OR IF FBOrder = "" OR IF FBOrder = "FBOrder" OR IF FBOrder = TRUE THEN SET FBOrder TO "1|2|3|4|5|6"
+	IF MaxFBPDRetries IS EMPTY OR IF MaxFBPDRetries = "" OR IF MaxFBPDRetries = "MaxFBPDRetries" OR IF MaxFBPDRetries IS NOT A NUMBER THEN SET MaxFBPDRetries TO 5
+	IF MaxTruncRetries IS EMPTY OR IF MaxTruncRetries = "" OR IF MaxTruncRetries = "MaxTruncRetries" OR IF MaxTruncRetries IS NOT A NUMBER THEN SET MaxTruncRetries TO 5
+	IF TFBCL IS EMPTY OR IF TFBCL = "" OR IF TFBCL = "TFBCL" OR IF TFBCL IS NOT A NUMBER THEN SET TFBCL TO 3
+	IF UseTruncFB IS EMPTY OR IF UseTruncFB = "" OR IF UseTruncFB = "UseTruncFB" THEN SET UseTruncFB TO FALSE
+	IF DoNotFallBackWithTextStyles IS EMPTY OR IF DoNotFallBackWithTextStyles = "" OR IF DoNotFallBackWithTextStyles = "DoNotFallBackWithTextStyles" THEN SET DoNotFallBackWithTextStyles TO FALSE
+	IF DoNotResetArea IS EMPTY OR IF DoNotResetArea = "" OR IF DoNotResetArea = "DoNotResetArea" THEN SET DoNotResetArea TO FALSE
+	IF UseAltScrollFB IS EMPTY OR IF UseAltScrollFB = "" OR IF UseAltScrollFB = "UseAltScrollFB" THEN SET UseAltScrollFB TO FALSE
+	IF ScrollAmount IS EMPTY OR IF ScrollAmount = "" OR IF ScrollAmount = "ScrollAmount" OR IF ScrollAmount IS NOT A NUMBER THEN SET ScrollAmount TO 6
+	IF DoNotFallBackWithScroll IS EMPTY OR IF DoNotFallBackWithScroll = "" OR IF DoNotFallBackWithScroll = "DoNotFallBackWithScroll" THEN SET DoNotFallBackWithScroll TO FALSE
+	IF ShouldNotUseAnyAltMethod IS EMPTY OR IF ShouldNotUseAnyAltMethod = "" OR IF ShouldNotUseAnyAltMethod = "ShouldNotUseAnyAltMethod" THEN SET ShouldNotUseAnyAltMethod TO FALSE	
+	
+	// ##### OTHER DEFAULT SETTINGS #####
+	// If SuperClick was to fall out of the function, what should the default return state be.
+	SET SuperClickReturnValue TO ("Return Status Unknown?",ForceTextStyle)	
+	// When using the SuperClick cache and caching a new entry, a very small search area (searchRectangle) around the text is stored in the cache. How much padding should be added to all sides?
+	SET OffsetPadding TO 3								// Default = 3   -   Maximum = 20 - Anything above this number will run the risk of slowing down your execution by having too much space to search.
+	// When searching through the cache for the text and fingerprint, how much deviation is allowed for the fingerprint?  - (There are multiple permutations of any test, so it may see the same text in the same place but have a different finger print)
+	SET AllowedFingerPrintStepDeviation TO 2				// Default = 0   -   Maximum = 5 - Anything above this number will cause some close matches to be falsely be idenetified and recached in a different place.
+	
+	_COREFW00_MAIN.LogItForMe "INFO","Clicking On [ "&LookingFor&" ]   /   [ "&ClickAmount&" ] time(s)"
+	_COREFW00_MAIN.LogItForMe "DEBUG","Text style [ "&ForceTextStyle&" ]   /   X Click Offset of ["&xOffset&"]    /    Y Click Offset of ["&yOffset&"]   /   CharSet: ["&CharSetTemplateToUse&"]."
+	_COREFW00_MAIN.LogItForMe "DEBUG","Match item ["&OnlyMatchItem&"]/(0 = first only)    /    Case sensitive ["&Case&"]    /    Dynamic window follow the mouse ["&ShouldDownToMouse&"]    /    Alternative methods to be used ["&ShouldNotUseAnyAltMethod&"]    /    Max Time To Wait ["&MaxWait&"]"
+	_COREFW00_MAIN.LogItForMe "DEBUG","After Clicking) Text to input ["&InputText&"]--(String will be split with each | symbol)    /    Should it be verified ["&VerifyText&"]"
+	
+	// SPECIAL CASE - The only argument which is mandatory (LookingFor) cannot be empty
+	IF LookingFor = "" AND IF MultiClick ="" AND IF MultiTextSelect = "" THEN
+		_COREFW00_MAIN.LogItForMe "WARN","[LookingFor] is a mandatory argument (even If it's the only argument set) - In this case, it was BLANK"
+		_COREFW00_MAIN.LogItForMe "WARN","Because this argument was not set, this command will be ignored!"
+		_COREFW00_MAIN.LogItForMe "WARN","> SuperClick ("&Arguments&")"
+		SET ITEM 1 OF SuperClickReturnValue TO "Looking For (Mandatory Field) not provided!  -  Superclick terminated before it began. (ERROR)"
+		
+		IF VerifyExternalText IS NOT EMPTY THEN
+			SET SuperWaitForReturnStatus TO _COREFW00_MAIN.SuperWaitForItem(("LookingFor:"&VerifyExternalText))
+			IF SuperWaitForReturnStatus CONTAINS "ERROR" THEN
+				_COREFW00_MAIN.LogItForMe "WARN","(SuperClick) - After trying to verify 'External' - '"&VerifyExternalText&"' , the text could not be found using screen area - ("&ScreenArea&"), MaxWait - ("&MaxWait&") & Default Text Style."
+				_COREFW00_MAIN.LogItForMe "BLANK","Execution will be allowed to continue but it may fail from this point onwards."
+				_COREFW00_MAIN.LogItForMe "BLANK","return status will be returned back as (ERROR)."
+				SET ITEM 1 OF SuperClickReturnValue TO "[SuperClick] Partial Failure - Superclick may have been successful but verifying external text failed. (ERROR)"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO", "Successfully verified 'External' - '"&VerifyExternalText&"'."
+			END IF
+		END IF
+		State.EATHandlerEnd "[SuperClick] EARLYEXIT - IF LookingFor = BLANK AND IF MultiClick = BLANK"
+		RETURN SuperClickReturnValue
+	END IF
+	
+	//Determine whether we need to click a set of coordinates or not
+	IF MultiClick = "" THEN
+		SET ClickCoordsGiven TO FALSE
+		SET LookingForAsList TO LookingFor AS LIST
+		IF THE NUMBER OF ITEMS IN LookingForAsList IS 2 THEN
+			IF ITEM 1 OF LookingForAsList IS A NUMBER AND ITEM 2 OF LookingForAsList IS A NUMBER THEN
+				IF ITEM 1 OF LookingForAsList IS BETWEEN 0 AND ITEM 1 OF THE REMOTESCREENSIZE AND ITEM 2 OF LookingForAsList IS BETWEEN 0 AND ITEM 2 OF THE REMOTESCREENSIZE THEN
+					SET ClickCoordsGiven TO TRUE
+					SET NoCache TO TRUE
+				END IF
+			END IF
+		END IF
+		IF ClickCoordsGiven IS TRUE AND OnlyMatchItem >= 1 THEN
+			_COREFW00_MAIN.LogItForMe "WARN" ,"A set of coordinates was passed to LookingFor AND OnlyMatchItem was higher than 1."
+			_COREFW00_MAIN.LogItForMe "BLANK" ,"This is invalid usage - SuperClick will now set OnlyMatchItem TO 0 to ensure the coordinates are clicked."
+			SET OnlyMatchItem TO 0
+		END IF
+	END IF
+	
+	IF LogLVL IS NOT EMPTY and LogMSG IS NOT EMPTY THEN
+		_COREFW00_MAIN.LogItForMe LogLVL, LogMSG
+	END IF
+	
+	// GENERATE FINGERPRINT USING EXECUTION ANALYSIS TRACKER STACK
+	SET FingerPrint TO GLOBAL Settings.("03_COMMON_GLOBALS").("LOGGING").("COUNTERS").("TestStepCounter")
+	
+	IF OnlyMoveToLocation = FALSE THEN
+		// Now grab the CharSet Template to use for all SuperClick commands
+		IF CharSetTemplateToUse IS EMPTY OR IF CharSetTemplateToUse = "" OR IF CharSetTemplateToUse = "CharSetTemplateToUse" THEN
+			_COREFW00_MAIN.LogItForMe "INFO", "No character set used for SuperClick - UNIVERSAL WILDCARDS used."
+			SET SuperClickCharSet TO EMPTY
+		ELSE IF CharSetTemplateToUse = "SELF" THEN
+			_COREFW00_MAIN.LogItForMe "INFO", "A SuperClick character set has been specified as itself (SELF)"
+			IF LookingFor IS NOT EMPTY OR IF LookingFor is not "" THEN 
+				SET SuperClickCharSet TO LookingFor
+			END IF
+		ELSE
+			_COREFW00_MAIN.LogItForMe "INFO", "A SuperClick character set has been specified - "&CharSetTemplateToUse&"."
+			SET SuperClickCharSet TO _COREFW02_EGGPLANT.SuperClickCharSetTemplates (CharSetTemplateToUse)
+		END IF
+	END IF
+	
+	IF WaitBeforeExecute >= 1 THEN
+		_COREFW00_MAIN.LogItForMe "BLANK", "Wait Before Execution order seen - Waiting for "&WaitBeforeExecute&" seconds before continuing."
+		WAIT WaitBeforeExecute SECONDS
+		_COREFW00_MAIN.LogItForMe "BLANK", "Wait Before Execution order COMPLETED."
+	END IF
+	
+	IF OnlyMoveToLocation = TRUE THEN _COREFW00_MAIN.LogItForMe "STEPINFO", "[OnlyMoveToLocation] Special argument detected - This will only locate the text/image you have requested and move the mouse to it's location."
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Now figure out the combination needed to successfully execute the click command with all the arguments specified
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	IF MultiClick IS NOT EMPTY and OnlyMatchItem = 0 AND IF OnlyMoveToLocation = FALSE THEN	
+		_COREFW00_MAIN.LogItForMe "INFO", "MultiClick Detected - User has requested to click on multiple items."
+		REPLACE EVERY OCCURRENCE OF "MultiClick:" In MultiClick WITH ""
+		SET TempConversionString TO MultiClick SPLIT BY "|"
+		SET MultiClickTextInputSplit TO MultiClickTextInput SPLIT BY "|"
+		_COREFW00_MAIN.LogItForMe "INFO", "Items to click include: "&TempConversionString
+		REPEAT FOR EACH ITEM IN TempConversionString
+			IF IT IS NOT EMPTY THEN
+				SET LookingFor TO IT
+				IF CharSetTemplateToUse = "SELF" AND IF LookingFor is not "" THEN 
+					SET SuperClickCharSet to LookingFor
+				END IF
+				_COREFW00_MAIN.LogItForMe "STEP","'[SuperClick] MultiClick' - Clicking on > "&IT
+				IF IT IS NOT EMPTY THEN
+					IF ScreenArea IS NOT EMPTY THEN SET the searchrectangle TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea)
+					IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments
+					TRY
+						IF StrictFind IS NOT TRUE THEN
+							Click imagelocation((DataType):IT,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)+[xOffset,yOffset]
+						ELSE
+							SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (THE UNION OF Arguments AND ("LookingFor:"&IT))
+							SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+							IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+								_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+								_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+								THROW "StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+							ELSE
+								Click StrictFindLocation + [xOffset,yOffset]
+							END IF
+						END IF
+						IF FullClearField = TRUE THEN
+							_COREFW00_MAIN.SC_FullClearField
+						END IF
+					CATCH theException
+						IF ShouldNotUseAnyAltMethod = FALSE THEN SET SuperClickReturnValue TO _COREFW00_MAIN.SetArgumentsAndCallFallbackMechanisms_TEXT (LookingFor,xOffset,yOffset,DoNotFallBackWithScroll,DoNotFallBackWithTextStyles,ClickAmount,UseTruncFB,FullClearField,UseAltScrollFB,MaxFBPDRetries,OnlyMoveToLocation,DoNotResetArea,TFBCL,MaxTruncRetries,SetClickDelay,FBOrder,ScrollAmount)
+						IF FullClearField = TRUE THEN
+							_COREFW00_MAIN.SC_FullClearField
+						END IF
+					END TRY
+					// You now need to check If you have to add text after your click
+					
+					IF WaitBeforeTyping >= 1 THEN
+						_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait Before Typing order seen - Waiting for "&WaitBeforeTyping&" seconds before continuing."
+						WAIT WaitBeforeTyping SECONDS
+						_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait Before Typing order COMPLETED."
+					END IF
+					IF MultiClickTextInputSplit CONTAINS repeatIndex() THEN
+						_COREFW00_MAIN.SC_CheckForTextInput InputText,UseSecret,ForceTypeChars,WaitBeforeIT
+					END IF
+				END IF
+				IF SetClickDelay >= 1 THEN
+					_COREFW00_MAIN.LogItForMe "STEPINFO", "SetClickDelay order seen - Waiting for "&SetClickDelay&" seconds before continuing."
+					WAIT SetClickDelay SECONDS
+					_COREFW00_MAIN.LogItForMe "STEPINFO", "SetClickDelay order COMPLETED."
+				END IF
+			END IF
+		END REPEAT
+		Wait 1
+		
+		IF VerifyExternalText IS NOT EMPTY THEN
+			SET SuperWaitForReturnStatus TO _COREFW00_MAIN.SuperWaitForItem(("LookingFor:"&VerifyExternalText))
+			IF SuperWaitForReturnStatus CONTAINS "ERROR" THEN
+				_COREFW00_MAIN.LogItForMe "WARN", "After trying to verify 'External' - '"&VerifyExternalText&"' , the text could not be found using screen area - ("&ScreenArea&"), MaxWait - ("&MaxWait&") & Default Text Style."
+				_COREFW00_MAIN.LogItForMe "BLANK", "Execution will be allowed to continue but it may fail from this point onwards."
+				_COREFW00_MAIN.LogItForMe "BLANK", "return status will be returned back as (ERROR)."
+				SET ITEM 1 OF SuperClickReturnValue TO "[SuperClick] Partial Failure - Superclick may have been successful but verifying external text failed. (ERROR)"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO", "Successfully verified 'External' - '"&VerifyExternalText&"'."
+			END IF
+		END IF
+		
+		IF WaitAfterExecute >= 1 THEN
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait After Execution order seen - Waiting for "&WaitAfterExecute&" seconds before continuing."
+			WAIT WaitAfterExecute SECONDS
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait After Execution order COMPLETED."
+		END IF
+		
+		State.EATHandlerEnd "MULTICLICK"
+		RETURN SuperClickReturnValue
+		
+	ELSE IF OnlyMatchItem >= 1 AND IF OnlyMoveToLocation = FALSE THEN
+		_COREFW00_MAIN.LogItForMe "STEPINFO", "Clicking on occurrence ["&OnlyMatchItem&"] of ["&LookingFor&"]"
+		
+		SET ItemCount TO everyimagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)
+		
+		TRY
+			IF ItemCount >=2 THEN
+				IF ScreenArea IS NOT EMPTY THEN SET the searchrectangle TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea)
+				IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments
+				IF StrictFind IS NOT TRUE THEN
+					Click item OnlyMatchItem of everyimagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)+[xOffset,yOffset]
+				ELSE
+					SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+					SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+					IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+						_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+						_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+						THROW "StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+					ELSE
+						Click StrictFindLocation + [xOffset,yOffset]
+					END IF
+				END IF
+				_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+				SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			ELSE
+				IF StrictFind IS NOT TRUE THEN
+					Click imagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)
+				ELSE
+					SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+					SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+					IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+						_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+						_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+						THROW "StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+					ELSE
+						Click StrictFindLocation + [xOffset,yOffset]
+					END IF
+				END IF
+				_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+				SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			END IF
+		CATCH theException
+			SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("FallbackUsed") TO GLOBAL Settings.("04_EXECUTION").("TRACKING").("FallbackUsed") + 1
+			_COREFW00_MAIN.LogItForMe "INFO", "Trying fallback method of just clicking on any instance of: "&LookingFor&"   -   (Remove all arguments sent with SuperClick Command)"
+			Click ((DataType):LookingFor,PreferredPattern:SuperClickCharSet)
+			_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+			SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+			IF FullClearField = TRUE THEN
+				_COREFW00_MAIN.SC_FullClearField
+			END IF
+		END TRY
+		
+		_COREFW00_MAIN.SC_ExtFuncRepeatClick ClickAmount, SetClickDelay
+		
+		IF WaitBeforeTyping >= 1 THEN
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait Before Typing order seen - Waiting for "&WaitBeforeTyping&" seconds before continuing."
+			WAIT WaitBeforeTyping SECONDS
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait Before Typing order COMPLETED."
+		END IF
+		
+		_COREFW00_MAIN.SC_CheckForTextInput InputText,UseSecret,ForceTypeChars,WaitBeforeIT
+		WAIT 1
+		
+		IF VerifyExternalText IS NOT EMPTY THEN
+			SET SuperWaitForReturnStatus TO _COREFW00_MAIN.SuperWaitForItem(("LookingFor:"&VerifyExternalText))
+			IF SuperWaitForReturnStatus CONTAINS "ERROR" THEN
+				_COREFW00_MAIN.LogItForMe "WARN", "After trying to verify 'External' - '"&VerifyExternalText&"' , the text could not be found using screen area - ("&ScreenArea&"), MaxWait - ("&MaxWait&") & Default Text Style."
+				_COREFW00_MAIN.LogItForMe "BLANK", "Execution will be allowed to continue but it may fail from this point onwards."
+				_COREFW00_MAIN.LogItForMe "BLANK", "return status will be returned back as (ERROR)."
+				SET ITEM 1 OF SuperClickReturnValue TO "[SuperClick] Partial Failure - Superclick may have been successful but verifying external text failed. (ERROR)"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO", "Successfully verified 'External' - '"&VerifyExternalText&"'."
+			END IF
+		END IF
+		
+		IF WaitAfterExecute >= 1 THEN
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait After Execution order seen - Waiting for "&WaitAfterExecute&" seconds before continuing."
+			WAIT WaitAfterExecute SECONDS
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait After Execution order COMPLETED."
+		END IF
+		
+		State.EATHandlerEnd "ONLYMATCHITEM"
+		RETURN SuperClickReturnValue
+	ELSE IF OnlyMatchItem >= 1 AND IF MultiClick IS NOT EMPTY AND IF OnlyMoveToLocation = FALSE THEN
+		_COREFW00_MAIN.LogItForMe "WARN", "!! WARNING !! - SUPERCLICK > You have incompatible arguments - OnlyMatchItem = "&OnlyMatchItem&"  /  MultiClick =  "&MultiClick&"."
+		_COREFW00_MAIN.LogItForMe "BLANK", "                              You cannot specify these arguments together. FOR MORE INFORMATION, PLEASE SEE FUNCTION INFO"
+		_COREFW00_MAIN.LogItForMe "ERROR", "Assuming the script cannot continue - Aborting!"
+		SET ITEM 1 OF SuperClickReturnValue TO "Incompatible arguments provided - OnlyMatchItem = "&OnlyMatchItem&"  /  MultiClick =  "&MultiClick&"    -    Superclick terminated due to conflict of arguments. (ERROR)"
+		
+		IF VerifyExternalText IS NOT EMPTY THEN
+			SET SuperWaitForReturnStatus TO _COREFW00_MAIN.SuperWaitForItem(("LookingFor:"&VerifyExternalText))
+			IF SuperWaitForReturnStatus CONTAINS "ERROR" THEN
+				_COREFW00_MAIN.LogItForMe "WARN", "After trying to verify 'External' - '"&VerifyExternalText&"' , the text could not be found using screen area - ("&ScreenArea&"), MaxWait - ("&MaxWait&") & Default Text Style."
+				_COREFW00_MAIN.LogItForMe "BLANK", "Execution will be allowed to continue but it may fail from this point onwards."
+				_COREFW00_MAIN.LogItForMe "BLANK", "return status will be returned back as (ERROR)."
+				SET ITEM 1 OF SuperClickReturnValue TO "[SuperClick] Partial Failure - Superclick may have been successful but verifying external text failed. (ERROR)"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO", "Successfully verified 'External' - '"&VerifyExternalText&"'."
+			END IF
+		END IF
+		State.EATHandlerEnd "[SuperClick] FAILURE - You cannot specify MultiClick And OnlyMoveToLocation together"
+		RETURN SuperClickReturnValue
+		
+	ELSE IF MultiTextSelect IS NOT EMPTY AND IF OnlyMoveToLocation = FALSE THEN
+		SET ctrlDwnFlag TO FALSE //flag that will determine If the Control button needs to be pressed or not
+		_COREFW00_MAIN.LogItForMe "STEPINFO", "MultiTextSelect Detected - User has requested to select (Ctrl + Click) multiple items."
+		SET SeparatedList TO MultiTextSelect SPLIT BY "|"
+		_COREFW00_MAIN.LogItForMe "STEPINFO", "Items to select include: "&SeparatedList
+		IF StrictFind IS TRUE THEN INSERT "ClickLast:TRUE" INTO Arguments
+		
+		REPEAT FOR EACH currentItem IN SeparatedList
+			IF currentItem IS NOT EMPTY and currentItem DOES NOT EQUAL "" THEN
+				IF ScreenArea IS NOT EMPTY THEN SET the searchrectangle TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea)
+				IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments	
+				_COREFW00_MAIN.LogItForMe "INFO", "The search area that will be used is set to  - ''"&ScreenArea&"'.'"
+				//Try to find the last instance of the Current Item on the screen and click it
+				TRY
+					IF StrictFind IS NOT TRUE THEN
+						Click last item of everyimagelocation(text:currentItem,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case)+[xOffset,yOffset]
+					ELSE
+						SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (THE UNION OF Arguments AND ("LookingFor:"&currentItem))
+						SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+						IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+							_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+							_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+							THROW "[SuperClick] StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+						ELSE
+							Click StrictFindLocation + [xOffset,yOffset]
+						END IF
+					END IF
+					_COREFW00_MAIN.LogItForMe "STEPINFO", "The Current Item - ''"&currentItem&"' has been found and clicked'"
+					_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+					SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+					//If the flag is FALSE Eggplant presses the Control button
+					IF ctrlDwnFlag = FALSE THEN Typetext controlDown
+					SET ctrlDwnFlag TO TRUE
+					
+					//The Current Item could not be found so Eggplant will now try using the fall back text styles				
+				CATCH theException
+					IF DataType IS "IMAGE" THEN // // (#BUMP#)  ADD TO BACKLOG AND REMOVE THIS CODE MARKER (#BUMP#) // // (#F#) ADD A FALLBACK HERE WHICH WILL -----> Deal with Images not being found.
+						// Should this be ERROR rather than WARN
+						_COREFW00_MAIN.LogItForMe "WARN" , "Failed to find the image '"&LookingFor&"' and will now terminate - Execution may fail from this point onwards!"
+						State.EATHandlerEnd "[SuperClick] FAILURE - '"&LookingFor&"' could not be found."
+						SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Failed. (FAIL) - Image could not be found!"
+						RETURN SuperClickReturnValue
+					END IF
+					_COREFW00_MAIN.LogItForMe "STEPINFO", "The Current Item - ''"&currentItem&"' has not been found, Eggplant will now try fall back text styles."
+					REPEAT WITH EACH  DifferentTextStyle IN GLOBAL Settings.("03_COMMON_GLOBALS").("OCR_LISTS").("AlternativeTextStylesOnOCRIssue")
+						TRY
+							Click last item of everyimagelocation(text:currentItem,TextStyle:DifferentTextStyle,waitfor:MaxWait,caseSensitive:Case)+[xOffset,yOffset]
+							IF ctrlDwnFlag = FALSE THEN Typetext controlDown
+							SET ctrlDwnFlag TO TRUE
+							_COREFW00_MAIN.LogItForMe "STEPINFO", "Found '"&currentItem&"' with the alternative textstyle - "&DifferentTextStyle&"."
+							_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+							SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+							SET HasBeenFound TO TRUE
+							EXIT REPEAT
+						CATCH theException
+							IF DataType IS "IMAGE" THEN // // (#BUMP#)  ADD TO BACKLOG AND REMOVE THIS CODE MARKER (#BUMP#) // // (#F#) ADD A FALLBACK HERE WHICH WILL -----> Deal with Images not being found.
+								_COREFW00_MAIN.LogItForMe "WARN" , "Failed to find the image '"&LookingFor&"' and will now terminate - Execution may fail from this point onwards!"
+								State.EATHandlerEnd "[SuperClick] FAILURE - '"&LookingFor&"' could not be found."
+								SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Failed. (FAIL) - Image could not be found!"
+								RETURN SuperClickReturnValue
+							END IF
+							SET ITEM 1 OF SuperClickReturnValue TO "'"&LookingFor&"' Could not be found!  -  (ERROR)"
+							_COREFW00_MAIN.LogItForMe "STEPINFO", "Text '"&currentItem&"' Still not found using text style - "&DifferentTextStyle
+						END CATCH
+					END REPEAT
+					//If the Current Item was still not found using the fall back text styles then throw and error and terminate execution
+					IF HasBeenFound DOES NOT EQUAL TRUE THEN 
+						Typetext controlUp 
+						State.EATHandlerEnd "[SuperClick] FAILURE - MultiTextSelect Issue"
+						RUN "00_Settings_&_Errors/_98_COMMON_ERRORS".SuperClickFailed "[SuperClick] Whilst trying to SuperClick - MultiTextSelect the list of Items - '"&SeparatedList&"'. Eggplant was unable to find - ''"&currentItem&"' using various fallback text styles. Because of the unknown state further testing would be in, it has been deemed necessary to exit testing at this point.'"
+					END IF
+				END catch
+			END IF
+		END REPEAT
+		Typetext controlUp
+		_COREFW00_MAIN.LogItForMe "STEPINFO", "MultiTextSelect has successfully selected all of the items in - '"&SeparatedList&"'.'"
+		SET ITEM 1 OF SuperClickReturnValue TO "SuperClick (MULTI CLICK) Successful. (SUCCESS)"
+		
+		IF VerifyExternalText IS NOT EMPTY THEN
+			SET SuperWaitForReturnStatus TO _COREFW00_MAIN.SuperWaitForItem(("LookingFor:"&VerifyExternalText))
+			IF SuperWaitForReturnStatus CONTAINS "ERROR" THEN
+				_COREFW00_MAIN.LogItForMe "WARN", "After trying to verify 'External' - '"&VerifyExternalText&"' , the text could not be found using screen area - ("&ScreenArea&"), MaxWait - ("&MaxWait&") & Default Text Style."
+				_COREFW00_MAIN.LogItForMe "BLANK", "Execution will be allowed to continue but it may fail from this point onwards."
+				_COREFW00_MAIN.LogItForMe "BLANK", "return status will be returned back as (ERROR)."
+				SET ITEM 1 OF SuperClickReturnValue TO "[SuperClick] Partial Failure - Superclick may have been successful but verifying external text failed. (ERROR)"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO", "Successfully verified 'External' - '"&VerifyExternalText&"'."
+			END IF
+		END IF
+		
+		IF WaitAfterExecute >= 1 THEN
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait After Execution order seen - Waiting for "&WaitAfterExecute&" seconds before continuing."
+			WAIT WaitAfterExecute SECONDS
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait After Execution order COMPLETED."
+		END IF
+		
+		State.EATHandlerEnd "[SuperClick] MultiTextSelect"
+		RETURN SuperClickReturnValue
+	ELSE 
+		IF ClickFirst = TRUE AND IF OnlyMoveToLocation = FALSE THEN
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Clicking first occurrence of ["&LookingFor&"]"
+			IF ScreenArea IS NOT EMPTY THEN SET the searchrectangle TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea)
+			IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments
+			TRY
+				IF ClickCoordsGiven IS TRUE THEN
+					Click LookingForAsList + [xOffset,yOffset]
+				ELSE
+					IF StrictFind IS NOT TRUE THEN
+						Click ITEM 1 OF everyimagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)+[xOffset,yOffset]
+					ELSE
+						SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+						SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+						IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+							_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+							_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+							THROW "[SuperClick] StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+						ELSE
+							Click StrictFindLocation + [xOffset,yOffset]
+						END IF
+					END IF
+				END IF
+				_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+				SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			CATCH theException
+				IF DataType IS "IMAGE" THEN // // (#BUMP#)  ADD TO BACKLOG AND REMOVE THIS CODE MARKER (#BUMP#) // // (#F#) ADD A FALLBACK HERE WHICH WILL -----> Deal with Images not being found.
+					_COREFW00_MAIN.LogItForMe "WARN" , "Failed to find the image '"&LookingFor&"' and will now terminate - Execution may fail from this point onwards!"
+					State.EATHandlerEnd "[SuperClick] FAILURE - '"&LookingFor&"' could not be found."
+					SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Failed. (FAIL) - Image could not be found!"
+					RETURN SuperClickReturnValue
+				END IF
+				SET ITEM 1 OF SuperClickReturnValue TO "'"&LookingFor&"' Could not be found!  -  (ERROR)"
+				IF ShouldNotUseAnyAltMethod = FALSE THEN SET SuperClickReturnValue TO _COREFW00_MAIN.SetArgumentsAndCallFallbackMechanisms_TEXT (LookingFor,xOffset,yOffset,DoNotFallBackWithScroll,DoNotFallBackWithTextStyles,ClickAmount,UseTruncFB,FullClearField,UseAltScrollFB,MaxFBPDRetries,OnlyMoveToLocation,DoNotResetArea,TFBCL,MaxTruncRetries,SetClickDelay,FBOrder, ScrollAmount)
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			END TRY			
+		ELSE IF ClickLast = TRUE AND IF OnlyMoveToLocation = FALSE THEN
+			_COREFW00_MAIN.LogItForMe "STEPINFO", "Clicking last occurrence of ["&LookingFor&"]"
+			IF ScreenArea IS NOT EMPTY THEN SET the searchrectangle TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea)	
+			IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments
+			TRY
+				IF ClickCoordsGiven IS TRUE THEN
+					Click LookingForAsList + [xOffset,yOffset]
+				ELSE
+					IF StrictFind IS NOT TRUE THEN
+						Click last item of everyimagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)+[xOffset,yOffset]
+					ELSE
+						SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+						SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+						IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+							_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+							_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+							THROW "[SuperClick] StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+						ELSE
+							Click StrictFindLocation + [xOffset,yOffset]
+						END IF
+					END IF
+				END IF
+				_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+				SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			CATCH theException
+				IF DataType IS "IMAGE" THEN // // (#BUMP#)  ADD TO BACKLOG AND REMOVE THIS CODE MARKER (#BUMP#) // // (#F#) ADD A FALLBACK HERE WHICH WILL -----> Deal with Images not being found.
+					_COREFW00_MAIN.LogItForMe "WARN" , "Failed to find the image '"&LookingFor&"' and will now terminate - Execution may fail from this point onwards!"
+					State.EATHandlerEnd "[SuperClick] FAILURE - '"&LookingFor&"' could not be found."
+					SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Failed. (FAIL) - Image could not be found!"
+					RETURN SuperClickReturnValue
+				END IF
+				SET ITEM 1 OF SuperClickReturnValue TO "'"&LookingFor&"' Could not be found!  -  (ERROR)"
+				IF ShouldNotUseAnyAltMethod = FALSE THEN SET SuperClickReturnValue TO _COREFW00_MAIN.SetArgumentsAndCallFallbackMechanisms_TEXT (LookingFor,xOffset,yOffset,DoNotFallBackWithScroll,DoNotFallBackWithTextStyles,ClickAmount,UseTruncFB,FullClearField,UseAltScrollFB,MaxFBPDRetries,OnlyMoveToLocation,DoNotResetArea,TFBCL,MaxTruncRetries,SetClickDelay,FBOrder, ScrollAmount)
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			END TRY			
+		ELSE
+			// Set some defaults for this block of code
+			SET TempFoundCacheMatches TO EMPTY
+			SET PreviousSearchArea TO THE SEARCHRECTANGLE
+			
+			// Check if 'DataType' is text or image - if it = image, then caching will not be checked.
+			IF DataType DOES NOT EQUAL "IMAGE" THEN
+				IF GLOBAL Settings.("05_CACHES").("Options").("ShouldUseSuperClickCACHE") = TRUE AND IF NoCache = FALSE THEN
+					// Transfer the relevant cache to a temp variable from 'GLOBAL Settings.("05_CACHES").SuperClick'   (LookingFor)
+					SET TempCacheToSearch TO GLOBAL Settings.("05_CACHES").SuperClick.(GLOBAL Settings.("04_EXECUTION").("CONTEXT").("ExpectedEnvironmentForThisTestBed")).(GLOBAL Settings.("04_EXECUTION").("TRACKING").("CBOTypeOfObjectDeclared")).(LookingFor)
+					// Iterate through the cache looking for the fingerprint that matches (+ AllowedFingerPrintStepDeviation)
+					REPEAT FOR EACH CacheLine IN TempCacheToSearch
+						// Check for fingerprint match - only if you have matching fingerprint should you insert this into the list of matches (Should only have 1 match)
+						SET TEMPCacheSplitDetails TO CacheLine SPLIT BY "|"
+						SET FingerPrintExtraction TO ITEM 2 OF (ITEM 4 OF TEMPCacheSplitDetails SPLIT BY ":")
+						IF FingerPrintExtraction > FingerPrint-AllowedFingerPrintStepDeviation AND IF FingerPrintExtraction < FingerPrint+AllowedFingerPrintStepDeviation THEN
+							INSERT CacheLine INTO TempFoundCacheMatches
+						END IF
+					END REPEAT
+					
+					// If you have 2 or more matches, then something went wrong with the caching as you should never have the same fingerprint twice.
+					IF THE NUMBER OF ITEMS IN TempFoundCacheMatches >= 2 THEN
+						HighlightRectangle ((ITEM 3 OF THE SEARCHRECTANGLE - 5),(ITEM 2 OF THE SEARCHRECTANGLE + 5),(ITEM 3 OF THE SEARCHRECTANGLE - 3),(ITEM 2 OF THE SEARCHRECTANGLE + 3)), {duration:6 seconds,color:RED}
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "WARN","⚠    -    [SuperClick CACHE] LOOKUP CONFLICT! - '"&LookingFor&"' with the fingerprint of: "&FingerPrint &" was seen twice in the cache."
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "WARN","⚠    -    [SuperClick CACHE] This should not happen as fingerprints should be unique for each stored cache entry."
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "WARN","⚠    -    [SuperClick CACHE] This could indicate - Unforseen fingerprint calculation collision / cache is being updated by accident / reading of cache went wrong"
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "WARN","⚠    -    "
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "WARN","⚠    -    [SuperClick CACHE] Eggplant will ignore this cache lookup/usage and continue with normal SuperClick operation!"
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "WARN","⚠    -    [SuperClick CACHE] However, please manually check the cache to correct this issue."
+						SET THE SearchRectangle TO PreviousSearchArea
+						SET DoNotPerformCacheSearch TO TRUE
+						SET FoundCachedText TO TRUE
+						SET UPDATE_CACHE TO FALSE
+						
+						// If you have 1 match, this must be the text you are looking for - so click it, or move to it.
+					ELSE IF THE NUMBER OF ITEMS IN TempFoundCacheMatches = 1 THEN
+						// Extract the details of the settings needed to find this text
+						SET TEMPSplitDetails TO  ITEM 1 OF TempFoundCacheMatches SPLIT BY "|"
+						SET LastTextStyleUsed TO ITEM 2 OF (ITEM 3 OF TEMPSplitDetails SPLIT BY ":")
+						SET THE SearchRectangle TO ITEM 2 OF (ITEM 2 OF TEMPSplitDetails SPLIT BY ":") AS LIST // Set a very small localised search area using the extracted coords in the cache
+						HighlightRectangle ((ITEM 3 OF THE SEARCHRECTANGLE - 5),(ITEM 2 OF THE SEARCHRECTANGLE + 5),(ITEM 3 OF THE SEARCHRECTANGLE - 3),(ITEM 2 OF THE SEARCHRECTANGLE + 3)), {duration:3 seconds,color:GLOBAL Settings.("05_CACHES").("Options").("SuperClickCacheLEDColour")}
+						IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN 
+							_COREFW00_MAIN.LogItForMe "BLANK","◈    -    [SuperClick CACHE] Performing cached search for text '"&LookingFor&"' at location "&LocatedPosition&", using text style > "&ForceTextStyle&"        (Fingerprint: "&FingerPrint&")"
+						ELSE
+							_COREFW00_MAIN.LogItForMe "INFO","◈    -    [SuperClick CACHE] Performing cached search for text '"&LookingFor&"' at location "&LocatedPosition&", using text style > "&ForceTextStyle&"        (Fingerprint: "&FingerPrint&")"
+						END IF
+						// Check if the text is still seen in the search area extracted from the cache
+						IF IMAGEFOUND(TEXT:LookingFor,TextStyle:LastTextStyleUsed,caseSensitive:Case) THEN
+							HighlightRectangle ((ITEM 3 OF THE SEARCHRECTANGLE - 5),(ITEM 2 OF THE SEARCHRECTANGLE + 5),(ITEM 3 OF THE SEARCHRECTANGLE - 3),(ITEM 2 OF THE SEARCHRECTANGLE + 3)), {duration:3 seconds,color:GLOBAL Settings.("05_CACHES").("Options").("SuperClickCacheLEDColour")}
+							IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN _COREFW00_MAIN.LogItForMe "BLANK","✔    -    [SuperClick] Cached search successful."
+							ADD 1 TO GLOBAL Settings.("04_EXECUTION").("EAT").("ExecutionCount").("(CACHE)_____[SuperClick] Successful Cache Usage")
+							SET XMiddle TO ITEM 1 OF THE SearchRectangle + ((ITEM 3 OF THE SearchRectangle -ITEM 1 OF THE SearchRectangle)/2)
+							SET YMiddle TO ITEM 2 OF THE SearchRectangle + ((ITEM 4 OF THE SearchRectangle -ITEM 2 OF THE SearchRectangle)/2)
+							
+							IF ClickAmount Does Not Equal "RightClick" THEN 
+								IF StrictFind IS NOT TRUE THEN
+									IF OnlyMoveToLocation IS NOT TRUE THEN
+										CLICK (XMiddle,YMiddle)+[xOffset,yOffset]
+									ELSE
+										MOVETO (XMiddle,YMiddle)+[xOffset,yOffset]
+									END IF
+									SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+									SET FoundCachedText TO TRUE
+									SET SkipNormalCode TO TRUE
+									SET UPDATE_CACHE TO FALSE
+									SET THE SearchRectangle TO PreviousSearchArea
+								ELSE
+									SET CachedSearchArea TO THE SEARCHRECTANGLE
+									SET Direction TO StrictFindDirectionToCheck
+									DELETE EVERY OCCURRENCE OF "Check" IN Direction
+									IF Direction IS "Both" THEN
+										_COREFW00_MAIN.SuperModifySearchArea ("Left:"&StrictFindAllowedDistanceBetweenWords,"Right:"&StrictFindAllowedDistanceBetweenWords)
+									ELSE
+										_COREFW00_MAIN.SuperModifySearchArea (Direction &":" & StrictFindAllowedDistanceBetweenWords)
+									END IF
+									TRY
+										SET CurrentTextRead TO READTEXT(THE SEARCHRECTANGLE)
+									CATCH theException
+										_COREFW00_MAIN.LogItForMe "WARN","[SuperClick -> StrictFind] Trying to read text from the screen caused an exception during SC_SuperClick when using StrictFind functionality.									Adding padding to SearchArea and retrying."
+										_COREFW00_MAIN.SuperModifySearchArea("Top:5","Bottom:5")
+										SET CurrentTextRead TO READTEXT(THE SEARCHRECTANGLE)
+									END TRY
+									IF CurrentTextRead IS NOT LookingFor THEN
+										_COREFW00_MAIN.LogItForMe "INFO","SuperClick was called with a StrictFind and found something in the CACHE, however the cached result failed the StrictFind Check."
+										SET THE SearchRectangle TO PreviousSearchArea
+										SET FoundCachedText TO FALSE
+										SET SkipNormalCode TO FALSE
+										SET UPDATE_CACHE TO FALSE
+									ELSE
+										CLICK (XMiddle,YMiddle)+[xOffset,yOffset]
+										SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+										SET FoundCachedText TO TRUE
+										SET SkipNormalCode TO TRUE
+										SET UPDATE_CACHE TO FALSE
+										SET THE SearchRectangle TO PreviousSearchArea
+									END IF
+									SET THE SEARCHRECTANGLE TO CachedSearchArea
+								END IF
+							ELSE
+								MOVETO (XMiddle,YMiddle)+[xOffset,yOffset]
+								SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+								SET FoundCachedText TO TRUE
+								SET SkipNormalCode TO TRUE
+								SET UPDATE_CACHE TO FALSE
+								SET THE SearchRectangle TO PreviousSearchArea
+							END IF
+							
+							// Text was not seen - this indicates the text has moved or this cache is now invalid - So re-cache this entry
+						ELSE
+							HighlightRectangle ((ITEM 3 OF THE SEARCHRECTANGLE - 5),(ITEM 2 OF THE SEARCHRECTANGLE + 5),(ITEM 3 OF THE SEARCHRECTANGLE - 3),(ITEM 2 OF THE SEARCHRECTANGLE + 3)), {duration:3 seconds,color:GLOBAL Settings.("05_CACHES").("Options").("SuperClickCacheLEDColour")}
+							IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN 
+								_COREFW00_MAIN.LogItForMe "BLANK","⚠    -    [SuperClick CACHE] needs updating! - 'Text no longer located at cached position' - Eggplant will update this entry automatically with new position!"
+							ELSE
+								_COREFW00_MAIN.LogItForMe "INFO","⚠    -    [SuperClick CACHE] needs updating! - 'Text no longer located at cached position' - Eggplant will update this entry automatically with new position!"
+							END IF
+							SET THE SearchRectangle TO PreviousSearchArea
+							SET FoundCachedText TO FALSE
+							SET SkipNormalCode TO FALSE
+							SET UPDATE_CACHE TO TRUE
+							REPEAT FOR EACH UpdateCacheLineIndex IN GLOBAL Settings.("05_CACHES").SuperClick.(GLOBAL Settings.("04_EXECUTION").("CONTEXT").("ExpectedEnvironmentForThisTestBed")).(GLOBAL Settings.("04_EXECUTION").("TRACKING").("CBOTypeOfObjectDeclared")).(LookingFor)
+								IF UpdateCacheLineIndex = ITEM 1 OF TempFoundCacheMatches THEN
+									SET FoundIndexOfCacheLine TO RepeatIndex()
+									EXIT REPEAT
+								END IF
+							END REPEAT
+						END IF
+					ELSE
+						SET THE SearchRectangle TO PreviousSearchArea
+						SET FoundCachedText TO FALSE
+						SET SkipNormalCode TO FALSE
+						SET UPDATE_CACHE TO FALSE
+					END IF
+				END IF
+				
+				// No cache matched seen - So lets cache it now - It was not found, it should run standard code and this is not an update to the cache
+			ELSE
+				SET THE SearchRectangle TO PreviousSearchArea
+				SET FoundCachedText TO FALSE
+				SET SkipNormalCode TO FALSE
+				SET UPDATE_CACHE TO FALSE
+			END IF
+			
+			// STANDARD CODE -----    This code will be run if text is not found in cache, if caching is turned off or if the text was seen in cache but no longer located at cached position.
+			TRY
+				IF SkipNormalCode DOES NOT EQUAL TRUE THEN
+					IF ScreenArea IS NOT EMPTY THEN SET the searchrectangle TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea)
+					IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments
+					IF OnlyMoveToLocation = FALSE THEN
+						If ClickAmount Does Not Equal "RightClick" THEN 
+							IF ClickCoordsGiven IS TRUE THEN
+								Click LookingForAsList + [xOffset,yOffset]
+							ELSE
+								IF StrictFind IS NOT TRUE THEN
+									SET FoundArea TO ImageRectangle((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case)
+									Click imagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)+[xOffset,yOffset]
+								ELSE
+									SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+									SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+									IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+										_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+										_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+										THROW "[SuperClick] StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+									ELSE
+										
+										Click StrictFindLocation + [xOffset,yOffset]
+										SET FoundArea TO ITEM 2 OF StrictFindResults
+										SET FallbackTextStyle TO ITEM 3 OF StrictFindResults
+									END IF
+								END IF
+							END IF
+						ELSE 
+							IF ClickCoordsGiven IS TRUE THEN
+								MoveTo LookingForAsList + [xOffset,yOffset]
+							ELSE
+								IF StrictFind IS NOT TRUE THEN
+									MoveTo imagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case,PreferredPattern:SuperClickCharSet)+[xOffset,yOffset]
+									SET FoundArea TO foundImageInfo().ImageRectangle
+								ELSE
+									SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+									SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+									IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+										_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+										_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+										THROW "[SuperClick] StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+									ELSE
+										MoveTo StrictFindLocation + [xOffset,yOffset]
+										SET FoundArea TO ITEM 2 OF StrictFindResults
+										SET FallbackTextStyle TO ITEM 3 OF StrictFindResults
+									END IF
+								END IF
+							END IF
+						END IF
+						_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse click was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+					ELSE
+						IF ClickCoordsGiven IS TRUE THEN
+							MoveTo LookingForAsList + [xOffset,yOffset]
+						ELSE
+							IF StrictFind IS NOT TRUE THEN
+								MoveTo imagelocation((DataType):LookingFor,TextStyle:ForceTextStyle,waitfor:MaxWait,caseSensitive:Case) + [xOffset,yOffset]
+								SET FoundArea TO foundImageInfo().ImageRectangle
+							ELSE
+								SET StrictFindResults TO _COREFW00_MAIN.SC_StrictFind (Arguments)
+								SET StrictFindLocation TO ITEM 1 OF StrictFindResults
+								IF StrictFindLocation IS FALSE OR IF StrictFindLocation STARTS WITH "HANDLER" THEN
+									_COREFW00_MAIN.LogItForMe "WARN", "StrictFind failed to return any locations for given Arguments."
+									_COREFW00_MAIN.LogItForMe "BLANK", "StrictFind also uses multiple fallback mechanisms, so we have to assume that the text did not exist by itself and pass this onto regular fallbacks."
+									THROW "[SuperClick] StrictFindFailed", "StrictFind returned '"&StrictFindLocation&"'"
+								ELSE
+									MoveTo StrictFindLocation + [xOffset,yOffset]
+									SET FoundArea TO ITEM 2 OF StrictFindResults
+									SET FallbackTextStyle TO ITEM 3 OF StrictFindResults
+								END IF
+							END IF
+						END IF
+						_COREFW00_MAIN.LogItForMe "INFO", "The coordinates for the mouse move was:   "& the mouselocation &"     -     Mouse position saved to GLOBAL Settings.("&QUOTE&"04_EXECUTION"&QUOTE&").("&QUOTE&"TRACKING"&QUOTE&").("&QUOTE&"LastFieldMouseLocation"&QUOTE&")"
+					END IF
+					SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("LastFieldMouseLocation") TO the mouselocation
+				END IF
+				
+				// THIS IS THE REMAINDER OF THE STANDARD CODE FOR SUPERCLICK
+				IF FullClearField = TRUE AND IF OnlyMoveToLocation = FALSE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			CATCH theException
+				IF DataType IS "IMAGE" THEN // // (#BUMP#)  ADD TO BACKLOG AND REMOVE THIS CODE MARKER (#BUMP#) // // (#F#) ADD A FALLBACK HERE WHICH WILL -----> Deal with Images not being found.
+					_COREFW00_MAIN.LogItForMe "WARN" , "Failed to find the image '"&LookingFor&"' and will now terminate - Execution may fail from this point onwards!"
+					State.EATHandlerEnd "[SuperClick] FAILURE - '"&LookingFor&"' could not be found."
+					SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Failed. (FAIL) - Image could not be found!"
+					RETURN SuperClickReturnValue
+				END IF
+				IF ShouldNotUseAnyAltMethod = FALSE THEN 
+					SET SuperClickReturnValue TO _COREFW00_MAIN.SetArgumentsAndCallFallbackMechanisms_TEXT \
+							(LookingFor,xOffset,\
+							yOffset,DoNotFallBackWithScroll,\
+							DoNotFallBackWithTextStyles,\
+							ClickAmount,UseTruncFB,\
+							FullClearField,UseAltScrollFB,\
+							MaxFBPDRetries,\
+							OnlyMoveToLocation,\
+							DoNotResetArea,\
+							TFBCL,\
+							MaxTruncRetries,\
+							SetClickDelay,\
+							FBOrder, \
+							ScrollAmount\
+							)
+					SET FoundImageInfoFromFALLBACK TO foundImageInfo()
+					IF (FoundImageInfoFromFALLBACK = "" OR FoundImageInfoFromFALLBACK IS EMPTY OR FoundImageInfoFromFALLBACK ="FoundImageInfoFromFALLBACK")\
+							OR SuperClickReturnValue CONTAINS "(ERROR)" CONSIDERING CASE THEN
+						
+						SET NoCache TO TRUE // Ensure we do not try to update the CACHE from this point onwards
+					ELSE
+						SET FoundArea TO FoundImageInfoFromFALLBACK.ImageRectangle
+						SET FallbackTextStyle TO FoundImageInfoFromFALLBACK.TextStyle
+					END IF
+				ELSE
+					SET NoCache TO TRUE // Ensure we do not try to update the CACHE from this point onwards
+					SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Failed and no alternative fallback methods will be used. (FAILED)"
+					SET ITEM 2 OF SuperClickReturnValue TO ForceTextStyle
+				END IF
+				IF FullClearField = TRUE THEN
+					_COREFW00_MAIN.SC_FullClearField
+				END IF
+			END TRY		
+		END IF	
+		
+		IF OnlyMoveToLocation = FALSE THEN _COREFW00_MAIN.SC_ExtFuncRepeatClick ClickAmount, SetClickDelay
+	END IF
+	
+	IF FallbackTextStyle IS NOT "" AND FallbackTextStyle IS NOT EMPTY AND FallbackTextStyle IS NOT "FallbackTextStyle" THEN
+		SET Stored_ForceTextStyle TO ForceTextStyle // Just in case
+		SET ForceTextStyle TO FallbackTextStyle
+	END IF
+	
+	// Now check if the text should be cached or a cache should be updated or should ignore caching because it matches a specific rule.
+	
+	######################################################################################################################################################################
+	// EXCLUSION CHECK
+	IF FoundCachedText = FALSE AND IF GLOBAL Settings.("05_CACHES").("Options").("ShouldUseSuperClickCACHE") = TRUE AND  DataType DOES NOT EQUAL "IMAGE" AND IF NoCache = FALSE THEN
+		SET ExclusionTriggeredFLAG TO FALSE
+		
+		#### RULES ########################################################################################################################################################
+		IF LookingFor STARTS WITH <digits then "-"> THEN SET ExceptionTriggeredFLAG TO TRUE
+		IF LookingFor STARTS WITH "tcsit -" THEN SET ExceptionTriggeredFLAG TO TRUE
+		###################################################################################################################################################################
+		
+		// Now check if exception was raised
+		IF ExceptionTriggeredFLAG = TRUE THEN
+			IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN 
+				_COREFW00_MAIN.LogItForMe "BLANK",\
+						"╳   ?   ╳ -    [SuperClick CACHE] EXCLUSION RULE TRIGGERED    -   '"&LookingFor\
+						&"' was deemed to be something that should not be cached.    ⯇CACHE IGNORED⯈"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO",\
+						"╳   ?   ╳ -    [SuperClick CACHE] EXCLUSION RULE TRIGGERED    -   '"&LookingFor\
+						&"' was deemed to be something that should not be cached.    ⯇CACHE IGNORED⯈"
+			END IF
+			SET FoundCachedText TO TRUE
+		END IF
+	END IF
+	######################################################################################################################################################################
+	
+	
+	IF FoundCachedText = FALSE AND IF GLOBAL Settings.("05_CACHES").("Options").("ShouldUseSuperClickCACHE") = TRUE AND  DataType DOES NOT EQUAL "IMAGE" AND IF NoCache = FALSE THEN
+		SET TempTimeStamp TO formattedTime("%d/%m/%Y at %H:%M:%S")
+		IF UPDATE_CACHE IS NOT TRUE THEN
+			HighlightRectangle ((ITEM 3 OF FoundArea - 5),(ITEM 2 OF FoundArea + 5),(ITEM 3 OF FoundArea - 3),(ITEM 2 OF FoundArea + 3)), {duration:8 seconds,color:CYAN}
+			IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN 
+				_COREFW00_MAIN.LogItForMe "BLANK","█   <   ✔ -    [SuperClick CACHE] NEW ENTRY ADDED    -   TEXT: '"&LookingFor&"   /   TextStyle: "&ForceTextStyle&"   /   Case: "&Case&"   /   LocalArea: "&FoundArea&"        (Fingerprint: "&FingerPrint&")"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO","█   <   ✔ -    [SuperClick CACHE] NEW ENTRY ADDED    -   TEXT: '"&LookingFor&"   /   TextStyle: "&ForceTextStyle&"   /   Case: "&Case&"   /   LocalArea: "&FoundArea&"        (Fingerprint: "&FingerPrint&")"
+			END IF
+			ADD 1 TO GLOBAL Settings.("04_EXECUTION").("EAT").("ExecutionCount").("(CACHE)_____[SuperClick] NEW Cache entry")
+			INSERT "LookingFor:"&LookingFor&\
+					"|LocalArea:(("&\
+					ITEM 1 OF FoundArea-OffsetPadding&","&\
+					ITEM 2 OF FoundArea-OffsetPadding&\
+					"),("&\
+					ITEM 3 OF FoundArea+OffsetPadding&","&\
+					ITEM 4 OF FoundArea+OffsetPadding&\
+					"))|TextStyleUsed:"&ForceTextStyle&\
+					"|FingerPrint:"&FingerPrint&\
+					"|New Cache Entry - "&TempTimeStamp\
+					INTO GLOBAL Settings.("05_CACHES").SuperClick.(GLOBAL Settings.("04_EXECUTION").("CONTEXT").("ExpectedEnvironmentForThisTestBed")).(GLOBAL Settings.("04_EXECUTION").("TRACKING").("CBOTypeOfObjectDeclared")).(LookingFor)
+		ELSE
+			HighlightRectangle ((ITEM 3 OF FoundArea - 5),(ITEM 2 OF FoundArea + 5),(ITEM 3 OF FoundArea - 3),(ITEM 2 OF FoundArea + 3)), {duration:3 seconds,color:BLUE}
+			IF GLOBAL Settings.("05_CACHES").("Options").("OutputCacheMessages") = TRUE THEN 
+				_COREFW00_MAIN.LogItForMe "BLANK","█   <>   █    -    [SuperClick CACHE] ENTRY UPDATED    -   TEXT: '"&LookingFor&"   /   TextStyle: "&ForceTextStyle&"   /   Case: "&Case&"   /   LocalArea: "&FoundArea&"        (Fingerprint: "&FingerPrint&")"
+			ELSE
+				_COREFW00_MAIN.LogItForMe "INFO","█   <>   █    -    [SuperClick CACHE] ENTRY UPDATED    -   TEXT: '"&LookingFor&"   /   TextStyle: "&ForceTextStyle&"   /   Case: "&Case&"   /   LocalArea: "&FoundArea&"        (Fingerprint: "&FingerPrint&")"
+			END IF
+			ADD 1 TO GLOBAL Settings.("04_EXECUTION").("EAT").("ExecutionCount").("(CACHE)_____[SuperClick] Cache entry updated")
+			SET ITEM FoundIndexOfCacheLine OF GLOBAL Settings.("05_CACHES").SuperClick.(GLOBAL Settings.("04_EXECUTION").("CONTEXT").("ExpectedEnvironmentForThisTestBed")).(GLOBAL Settings.("04_EXECUTION").("TRACKING").("CBOTypeOfObjectDeclared")).(LookingFor) TO "LookingFor:"&LookingFor&\
+					"|LocalArea:(("&\
+					ITEM 1 OF FoundArea-OffsetPadding&","&\
+					ITEM 2 OF FoundArea-OffsetPadding&\
+					"),("&\
+					ITEM 3 OF FoundArea+OffsetPadding&","&\
+					ITEM 4 OF FoundArea+OffsetPadding&\
+					"))|TextStyleUsed:"&ForceTextStyle&\
+					"|FingerPrint:"&FingerPrint&\
+					"|Cache Updated - "&TempTimeStamp
+		END IF
+	END IF
+	IF FallbackTextStyle IS NOT "" AND FallbackTextStyle IS NOT EMPTY AND FallbackTextStyle IS NOT "FallbackTextStyle" THEN
+		SET ForceTextStyle TO Stored_ForceTextStyle // Just In case
+	END IF
+	
+	IF TabToEditField DOES NOT EQUAL FALSE AND OnlyMoveToLocation = FALSE THEN _COREFW00_MAIN.SC_TabToEditField TabToEditField
+	
+	IF WaitBeforeTyping >= 1 THEN
+		_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait Before Typing order seen - Waiting for "&WaitBeforeTyping&" seconds before continuing."
+		WAIT WaitBeforeTyping SECONDS
+		_COREFW00_MAIN.LogItForMe "STEPINFO", "Wait Before Typing order COMPLETED."
+	END IF
+	
+	// You now need to check if you have to add text after your click - 0.5 second delay before doing this to correct any slowdown of the UI (Takes 
+	IF OnlyMoveToLocation = FALSE THEN _COREFW00_MAIN.SC_CheckForTextInput InputText,UseSecret,ShouldBeSilent,ForceTypeChars,WaitBeforeIT
+	
+	// You now need to check if you have to add text after your click
+	SET RepeatThisCommandAgain TO FALSE
+	IF OnlyMoveToLocation = FALSE THEN // Only run the following code If you haven't told superclick to move to location only
+		IF VerifyText = TRUE THEN
+			// Usually, the first thing you type is what you want to be input into a text box. The rest of an inputtext argument is pressing the return key, or tab key etc.. - Therefore only take the first argument and pas that to superverification
+			SET FirstArgumentOfInputText TO InputText SPLIT BY "|"
+			IF VerifyTextUsingClipboard IS TRUE THEN
+				_COREFW00_MAIN.SUPERVERIFICATION ("DataType:"&DataType,"LookingFor:"&ITEM 1 OF FirstArgumentOfInputText,"ScreenArea:"&ScreenArea,"LogLVL:INFO","LogMSG:[FROM>SuperClick] > VerifyText flag was set TO TRUE in SuperClick arguments ---- [Handing off > SuperVerification] arguments sent to SuperVerification. [OnError = Abort]","OnVerificationError:Continue","SSC:"&SurpressScreenCaptureOnSuccessfulValidation,"StripSearch:"&UseStripSearch,"ForceTextStyle:"&ForceTextStyle,"ForceValid:"&ForceSuperVerificationVaidation,"TextBox")
+			ELSE
+				_COREFW00_MAIN.SUPERVERIFICATION ("DataType:"&DataType,"LookingFor:"&ITEM 1 OF FirstArgumentOfInputText,"ScreenArea:"&ScreenArea,"LogLVL:INFO","LogMSG:[FROM>SuperClick] > VerifyText flag was set TO TRUE in SuperClick arguments ---- [Handing off > SuperVerification] arguments sent to SuperVerification. [OnError = Abort]","OnVerificationError:Continue","SSC:"&SurpressScreenCaptureOnSuccessfulValidation,"StripSearch:"&UseStripSearch,"ForceTextStyle:"&ForceTextStyle,"ForceValid:"&ForceSuperVerificationVaidation)
+			END IF
+		END IF
+		
+		IF UseTBC = TRUE AND IF InputText IS NOT EMPTY THEN 
+			// First split the InputText at every | symbol (Special Keys)
+			SET TempExtractedInputText TO InputText SPLIT BY "|"
+			SET ResultReturned TO _COREFW00_MAIN.SC_TBCCheck ((ITEM 1 OF TempExtractedInputText),ForceTextStyle)
+			IF ResultReturned = FALSE THEN // FALSE = did not find a match for your text
+				SET RepeatThisCommandAgain TO TRUE
+				SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("RepeatSuperClickCommandCounter") TO GLOBAL Settings.("04_EXECUTION").("TRACKING").("RepeatSuperClickCommandCounter") + 1
+				IF GLOBAL Settings.("04_EXECUTION").("TRACKING").("RepeatSuperClickCommandCounter") >= 6 THEN RUN "00_Settings_&_Errors/_98_COMMON_ERRORS".SuperClickFailed "SuperClick - Failed to input text into a specified text box. (Failed 5 times) using TBC command."
+				_COREFW00_MAIN.LogItForMe "WARN", "It looks like the text you are trying to input into the field '"&LookingFor&"' textbox didn't work correctly as - ["&ITEM 1 OF TempExtractedInputText&"] could not be found.  -  Eggplant will now repeat the last SuperClick command with the same arguments (Max 5 times)."
+			ELSE
+				SET GLOBAL Settings.("04_EXECUTION").("TRACKING").("RepeatSuperClickCommandCounter") TO 0
+				_COREFW00_MAIN.LogItForMe "INFO", "[TBC]  -  Eggplant managed to input the text - ["&ITEM 1 OF TempExtractedInputText&"] successfully In the text field - '"&LookingFor
+			END IF
+		ELSE IF UseTBC = TRUE AND IF InputText IS EMPTY
+			_COREFW00_MAIN.LogItForMe "WARN", "SuperClick was used with the argument 'TBC' but at the time, no 'InputText' was declared."
+			_COREFW00_MAIN.LogItForMe "BLANK", "TBC will be ignored for this instance."
+		END IF
+	END IF
+	
+	IF RepeatThisCommandAgain = FALSE THEN
+		Wait 1
+		IF ShouldDownToMouse = TRUE THEN _COREFW00_MAIN.SuperModifySearchArea ("Preset:DownToMouse")
+	ELSE
+		_COREFW00_MAIN.LogItForMe "WARN", "Repeating last SuperClick command with the arguments - "&Arguments
+		_COREFW00_MAIN.SuperClick (Arguments)
+	END IF
+	
+	IF WaitAfterExecute >= 1 THEN
+		_COREFW00_MAIN.LogItForMe "BLANK", "Wait After Execution order seen - Waiting for "&WaitAfterExecute&" seconds before continuing."
+		WAIT WaitAfterExecute SECONDS
+		_COREFW00_MAIN.LogItForMe "BLANK", "Wait After Execution order COMPLETED."
+	END IF
+	
+	IF VerifyExternalText IS NOT EMPTY THEN
+		SET SuperWaitForReturnStatus TO _COREFW00_MAIN.SuperWaitForItem(("LookingFor:"&VerifyExternalText))
+		IF SuperWaitForReturnStatus CONTAINS "ERROR" THEN
+			_COREFW00_MAIN.LogItForMe "WARN", "After trying to verify 'External' - '"&VerifyExternalText&"' , the text could not be found using screen area - ("&ScreenArea&"), MaxWait - ("&MaxWait&") & Default Text Style."
+			_COREFW00_MAIN.LogItForMe "BLANK", "Execution will be allowed to continue but it may fail from this point onwards."
+			_COREFW00_MAIN.LogItForMe "BLANK", "return status will be returned back as (ERROR)."
+			SET ITEM 1 OF SuperClickReturnValue TO "S[SuperClick] Partial Failure - Superclick may have been successful but verifying external text failed. (ERROR)"
+		ELSE
+			_COREFW00_MAIN.LogItForMe "INFO", "Successfully verified 'External' - '"&VerifyExternalText&"'."
+		END IF
+	END IF
+	
+	IF ScreenArea IS NOT EMPTY THEN SET THE SEARCHRECTANGLE TO _COREFW02_EGGPLANT.ScreenPart(ScreenArea) //Set the search rectangle back to the screenarea passed in case this has changed whilst using the cache
+	IF ShouldDownToMouse = TRUE THEN _COREFW00_MAIN.SuperModifySearchArea ("Preset:DownToMouse") //Down to mouse here because the search area might have just been reset above and we need to leave the function in the correct state 
+	IF ExtractedSuperDynamicArguments IS NOT EMPTY THEN _COREFW00_MAIN.SuperDynamicSearchArea ExtractedSuperDynamicArguments
+	IF ITEM 1 OF SuperClickReturnValue = "Return Status Unknown?" THEN SET ITEM 1 OF SuperClickReturnValue TO "SuperClick Successful. (SUCCESS)"
+	State.EATHandlerEnd
+	RETURN SuperClickReturnValue
+END SuperClick
+#####################################################################################################################################################################################################

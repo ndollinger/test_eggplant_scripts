@@ -1,0 +1,15 @@
+(* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  Script generated:  2024-08-20 14:40:08
+  From session:  untitled session
+  Captured on:  2024-08-20 14:39:28
+  From server:  NicksAndroidPhone
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *)
+
+Drag "image0001"
+Drop "image0002"
+Click (Image:"image0003", WaitFor:3)
+Drag "image0004"
+Drop "image0005"
+Click "image0006"
+Click "image0007"
+Click "image0008"

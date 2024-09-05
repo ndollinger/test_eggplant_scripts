@@ -1,0 +1,3 @@
+﻿on AddToGlobalSum
+	put global GlobalSum + 1 into global GlobalSum
+end AddToGlobalSum

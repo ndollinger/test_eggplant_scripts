@@ -1,0 +1,45 @@
+{
+	"lastmodifieddate": 1723655449.6950002,
+	"lastfoundlocation": [
+		1104,
+		406,
+		64,
+		64
+	],
+	"originalcapturelocation": [
+		1104,
+		406,
+		64,
+		64
+	],
+	"createddate": 1723655449.6950002,
+	"lastfounddate": 1723655701.6389999,
+	"testlocationdata": [
+		{
+				"connectionportnum": 5900,
+				"properties": {
+					"CropRectangle": "[0,0,0,0]",
+					"Rotate": 0,
+					"Scale": "    1",
+					"HotSpot": "[32,32]",
+					"Tolerance": "_45",
+					"Discrepancy": "_0",
+					"SearchType": "Tolerant of Background"
+				},
+				"sutinfo": {
+					"type": "Unknown VNC"
+				},
+				"name": "BottomRight.png",
+				"connectionname": "Nick's Windows PC",
+				"type": 1,
+				"capturerect": [
+					1104,
+					406,
+					64,
+					64
+				],
+				"connectionserverid": "192.168.0.123"
+			}
+	],
+	"name": "BottomRight"
+}

@@ -1,0 +1,24 @@
+{
+    URLparameters = (
+	{
+	    checkedNumber = <*BY>;
+	    param = search;
+	    showCheckedNumber = <*BY>;
+	    value = starliner;
+	}
+    );
+    authenticationType = None;
+    httpVerb = GET;
+    oauth1Token = "";
+    password = "";
+    requestBody = "";
+    requestBodyFormat = "Form Url Encoded";
+    requestHeaders = "<![CDATA[]]>";
+    requests = "";
+    testResults = "";
+    testScript = "put api() into apiReturnData
+put JSONValue(apiReturnData.responsebody) into launchInfoJSON
+log launchInfoJSON";
+    url = "https://ll.thespacedevs.com/2.2.0/event/?search=starliner";
+    userName = "";
+}

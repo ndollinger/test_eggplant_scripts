@@ -1,0 +1,9 @@
+﻿Log ReadTable("ClassScheduleTable_A","ClassScheduleTable_B")
+
+Log ReadTable([459, 506, 1147, 756])
+
+put ReadTable([726, 510, 1515, 840]) into TableValues
+
+repeat with each tableRow in TableValues
+	put tableRow
+end repeat

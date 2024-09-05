@@ -1,0 +1,30 @@
+﻿global globalSum
+put 0 into globalSum
+RandomCommands.AddToGlobalSum
+put globalSum
+
+put Math.add(2,2)
+put Math.max(4,5)
+
+// Why is this valid syntax though?
+Math.min 234, 5
+
+put returnKeySymbol
+put returnKey
+put return
+put carriageReturn
+
+if carriageReturn equals numToChar(13)
+	Log "It's equal"
+else
+	Log "Not equal"
+end if
+
+if returnKey equals numToChar(10)
+	Log "It's equal"
+else
+	Log "Not equal"
+end if
+
+put numToChar(10)
+put linefeed

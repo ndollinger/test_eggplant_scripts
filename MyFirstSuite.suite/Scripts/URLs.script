@@ -1,0 +1,4 @@
+﻿Set htmlContents to url "https://www.google.com"
+Log htmlContents
+Set htmlTree to TreeFromHTML(htmlContents)
+Log node "html/head/title" of htmlTree

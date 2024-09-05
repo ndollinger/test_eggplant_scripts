@@ -17,3 +17,29 @@ Repeat until ConnectionInfo("Raspberry Pi").Connected
 End repeat
 
 log "Connected to " & ConnectionInfo().name
+
+if FalseHandler()
+	put "Lol"
+else
+	put "crap"
+end if
+
+
+
+to handle AreAnySutsConnected
+	if AllConnectionInfo() contains "Connected"
+		put "There is a connected SUT: " && SutInfo()
+		return SutInfo().name
+	else
+		put "No Connected SUTs"
+		return false
+	end if
+end AreAnySutsConnected
+
+to handle TrueHandler
+	return true
+end TrueHandler
+
+to handle FalseHandler
+	return false
+end FalseHandler

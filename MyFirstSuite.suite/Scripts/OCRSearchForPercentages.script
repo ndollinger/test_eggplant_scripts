@@ -1,0 +1,14 @@
+﻿Click {text:"50% OFF men's fashion from crown & Ivy"&tradeMarkSign&", iZOD & Chaps",waitfor:0, IgnoreNewlines:"Yes", IgnoreSpaces:"Yes",trimwhitespace:"Yes"}
+
+Click {text: "UP TO 50% OFF", waitfor:0, IgnoreNewlines:"Yes", ignoreSpaces:"Yes", trimwhitespace:"Yes"}
+
+Click {text: "extra 25% off almost everything", waitfor:0, IgnoreNewlines:"Yes", ignoreSpaces:"Yes", trimwhitespace:"Yes"}
+
+Click {text: "Save 75% on something that won't match", waitfor:0, IgnoreNewlines:"Yes", ignoreSpaces:"Yes", trimwhitespace:"Yes"}
+
+\\Click {text:"50"&percentSign&" OFF men's fashion from crown & Ivy"&tradeMarkSign&", iZOD & Chaps",waitfor:0, IgnoreNewlines:"Yes", IgnoreSpaces:"Yes",trimwhitespace:"Yes"}
+
+
+\\ Set x to "50"&percentSign&" OFF men's fashion from crown & Ivy"&tradeMarkSign&", iZOD & Chaps"
+\\ log x
+\\ Click {text:x,waitfor:0, IgnoreNewlines:"Yes", IgnoreSpaces:"Yes",trimwhitespace:"Yes"}

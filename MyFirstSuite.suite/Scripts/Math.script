@@ -1,0 +1,35 @@
+﻿
+put testAll()
+
+function testAll 
+	assert that add(1,1) equals 2
+	min 1024, 2048
+end testAll
+
+// function handler
+function add num1, num2
+	return num1 + num2
+end add
+
+// generic handler
+to max num1, num2
+	if num1 > num2
+		return num1
+	end if
+	return num2
+end max
+
+// Command Handler
+// This is not really proper use of a command handler
+//  You shouldn't do it this way
+on min num1, num2
+	if num1 > num2
+		put "the min is " & num2
+		return
+	end if
+	put "the min is " & num1
+end min
+
+
+
+

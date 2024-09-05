@@ -1,0 +1,32 @@
+{
+	"lastmodifieddate": 1724182811.767,
+	"originalcapturelocation": [
+		443,
+		1588,
+		70,
+		30
+	],
+	"createddate": 1724182811.767,
+	"testlocationdata": [
+		{
+				"name": "image0006.png",
+				"type": 1,
+				"properties": {
+					"CropRectangle": "[0,0,0,0]",
+					"Rotate": 0,
+					"Tolerance": "_1",
+					"HotSpot": "[35,15]",
+					"Scale": "    1",
+					"Discrepancy": "_0",
+					"SearchType": "Precise to Pixel"
+				},
+				"capturerect": [
+					443,
+					1588,
+					70,
+					30
+				]
+			}
+	],
+	"name": "image0006"
+}

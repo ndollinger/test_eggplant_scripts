@@ -1,0 +1,11 @@
+﻿put ocrbuild()
+
+put version().archive
+
+put "Here is a  sentance #1 Why is this all weird?"
+
+put "I don't know how would be fix this issue?"
+
+put "Can I get ! this # 40 asdasjdflkjasdf hg)(&#*&$)&(*#$ get all weird"
+
+put "Oh wow, this is working now, even with special chars #@$#!@#1@"
