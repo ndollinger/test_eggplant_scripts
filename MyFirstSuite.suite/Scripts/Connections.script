@@ -1,4 +1,7 @@
 ﻿// Check for connected SUTs in a naive way
+
+log "Changed a Line"
+
 put AllConnectionInfo()
 if AllConnectionInfo() contains "Connected"
 	put "There is a connected SUT: " && SutInfo()
