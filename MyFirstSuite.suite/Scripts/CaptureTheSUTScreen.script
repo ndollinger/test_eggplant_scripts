@@ -1,0 +1,3 @@
+﻿CaptureScreen "myScreen"
+
+Log "Captured the SUT Screen for " & connectioninfo()
