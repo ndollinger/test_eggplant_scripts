@@ -1,0 +1,90 @@
+{
+	"lastmodifieddate": 1743511900.7319999,
+	"ocrcapturestring": "t",
+	"originalcapturelocation": [
+		47,
+		196,
+		7,
+		30
+	],
+	"createddate": 1743511900.7319999,
+	"testlocationdata": [
+		{
+				"connectionportnum": 5900,
+				"domelements": [
+					{
+							"elementName": "ContactsButton",
+							"elementLocation": "{{9, 578}, {93, 62}}",
+							"elementScale": 1,
+							"elementType": "Button"
+						},
+					{
+							"elementName": "FavoritesButton",
+							"elementLocation": "{{111, 578}, {93, 62}}",
+							"elementScale": 1,
+							"elementType": "Button"
+						},
+					{
+							"elementName": "HistoryButton",
+							"elementLocation": "{{222, 578}, {93, 62}}",
+							"elementScale": 1,
+							"elementType": "Button"
+						},
+					{
+							"elementName": "DownloadsButton",
+							"elementLocation": "{{327, 578}, {93, 62}}",
+							"elementScale": 1,
+							"elementType": "Button"
+						},
+					{
+							"elementName": "Wifi Indicator",
+							"elementLocation": "{{4, 3}, {82, 22}}",
+							"elementScale": 1,
+							"elementType": "Checkpoint"
+						},
+					{
+							"elementName": "Clock",
+							"elementLocation": "{{174, 4}, {78, 20}}",
+							"elementScale": 1,
+							"elementType": "Checkpoint"
+						},
+					{
+							"elementName": "Battery Indicator",
+							"elementLocation": "{{382, 3}, {42, 24}}",
+							"elementScale": 1,
+							"elementType": "Checkpoint"
+						},
+					{
+							"elementName": "Screen Text",
+							"elementLocation": "{{12, 198}, {326, 60}}",
+							"elementScale": 1,
+							"elementType": "Checkpoint"
+						}
+				],
+				"properties": {
+					"CropRectangle": "[0,0,0,0]",
+					"Rotate": 0,
+					"Tolerance": "_45",
+					"HotSpot": "[3,15]",
+					"Scale": "    1",
+					"Discrepancy": "_0",
+					"SearchType": "Tolerant of Background"
+				},
+				"sutinfo": {
+					"Type": "Testplant Tutorial"
+				},
+				"name": "letter_t.png",
+				"connectionname": "Tutorial Connection",
+				"type": 1,
+				"connectionserverid": "TutorialSUT",
+				"capturerect": [
+					47,
+					196,
+					7,
+					30
+				],
+				"capturedocrtext": "t"
+			}
+	],
+	"name": "letter_t"
+}
